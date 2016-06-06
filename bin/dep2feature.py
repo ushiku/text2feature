@@ -1,5 +1,6 @@
 import numpy as np
 import re
+import fileinput
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -44,7 +45,7 @@ def ReturnBIGGEST(n, array):
     for vector2 in array.todense():
         vector2 = np.squeeze(np.asarray(vector2))
         sim_vector.append(1-cosine(vector1, vector2))  # ここcosineが1-cosine距離で定式している?
-    
+    sim_vector[n] = -1
     print("original:",text_word[n])
     for a in range(0, 5):  # 上位n個を出す(n未満の配列には対応しないので注意)
 #        while np.nanmax(sim_vector) == 1:  # 完全一致は出さない
@@ -58,21 +59,22 @@ def caluculate(vectorizer, text):
     X = vectorizer.fit_transform(text)
     #print(X.toarray())
     #print('feature一覧:', vectorizer.get_feature_names())
-#    ReturnBIGGEST(7, X)
-    ReturnBIGGEST(4, X)
-    ReturnBIGGEST(504, X)
-    ReturnBIGGEST(1004, X)
-    ReturnBIGGEST(1504, X)
-#    ReturnBIGGEST(9, X)
+    ReturnBIGGEST(0, X)
+    ReturnBIGGEST(1, X)
     return 0
+
 
     
 text_full = []  # かかり受け情報を含んだそのままのEDAの結果をlist化
 text_word = []  # scikit-learn ように ['This is a pen', 'That is a pen']というlist
 fulls = []
 words = ''
-file = open('../corpus/full.eda', 'r')
-for line in file:
+
+input_text = '../../../text2feature/corpus/sample.eda'
+corpus = '../../../text2feature/corpus/full.eda'
+data = [input_text, corpus]
+print(data)
+for line in fileinput.input(data):
     line = line.strip()
     if re.match('ID', line):
         continue
