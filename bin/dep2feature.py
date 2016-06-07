@@ -50,7 +50,7 @@ def ReturnBIGGEST(n, array):
         
     sim_vector[n] = -1  # 自分自身は無視
     print("original:",text_word[n])
-    for a in range(0, 5):  # 上位n個を出す(n未満の配列には対応しないので注意)
+    for a in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
         print("simirality:", np.nanmax(sim_vector), "answer ", a, ":", text_word[np.nanargmax(sim_vector)])
         sim_vector[np.nanargmax(sim_vector)] = -1
     print()
@@ -77,7 +77,7 @@ def doc2vec_sim(input_text, text_word_for_doc2vec):  # doc2vecのモデルを使
             filtered_sim = 0
         sim_vector.append(filtered_sim)
     print("original:", text_word[0])
-    for a in range(0, 5):  # 上位n個を出す(n未満の配列には対応しないので注意)
+    for a in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
         print("simirality:", np.nanmax(sim_vector), "answer ", a, ":", text_word[np.nanargmax(sim_vector)])
         sim_vector[np.nanargmax(sim_vector)] = -1
     print()
@@ -85,7 +85,7 @@ def doc2vec_sim(input_text, text_word_for_doc2vec):  # doc2vecのモデルを使
 
     return 0
     
-
+number = 5  # 上位何個を出すか?
 text_full = []  # かかり受け情報を含んだそのままのEDAの結果をlist化
 text_word = []  # scikit-learn ように ['This is a pen', 'That is a pen']というlist
 text_word_for_doc2vec = []  # doc2vec ように[['this', 'is'], [..]]
@@ -121,13 +121,13 @@ for text in text_full:
     text_word_dep.append(depbigram.strip())
     text_word_dep_uni.append(depbigram_unigram.strip())
 
-#print('tfidf')
-#caluculate(TfidfVectorizer(), text_word)  # tfidfモデル
-#print('dep')
-#caluculate(CountVectorizer(), text_word_dep)  # depモデル
-#print('depbigram-tfidf')
-#caluculate(TfidfVectorizer(), text_word_dep)  # depbigram-tfidfモデル
-#print('depbigram-unigram')
-#caluculate(TfidfVectorizer(), text_word_dep_uni)  # depbigram-unigramモデル
+print('tfidf')
+caluculate(TfidfVectorizer(), text_word)  # tfidfモデル
+print('dep')
+caluculate(CountVectorizer(), text_word_dep)  # depモデル
+print('depbigram-tfidf')
+caluculate(TfidfVectorizer(), text_word_dep)  # depbigram-tfidfモデル
+print('depbigram-unigram')
+caluculate(TfidfVectorizer(), text_word_dep_uni)  # depbigram-unigramモデル
 print('doc2vec')
 doc2vec_sim(text_word_for_doc2vec[0], text_word_for_doc2vec)  # doc2vec
