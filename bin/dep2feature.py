@@ -37,17 +37,18 @@ def text2dip(text):
     return depbigram, depbigram_unigram
 
 
-def ReturnBIGGEST(n, array):
+def caluculate(vectorizer, text):
     '''
     nと,vector_matrixを渡すことで、その中で最大の類似度の組み合わせを表示する  
     '''
+    array = vectorizer.fit_transform(text)
     sim_vector = []
-    vector1 = array[n].todense()
+    vector1 = array[0].todense()
     vector1 = np.squeeze(np.asarray(vector1))
     for vector2 in array.todense():
         vector2 = np.squeeze(np.asarray(vector2))
         sim_vector.append(1-cosine(vector1, vector2))  # ここcosineが1-cosine距離で定式している?
-    sim_vector[n] = -1  # 自分自身は無視
+    sim_vector[0] = -1  # 自分自身は無視
     print("original:", corpus_list[1][n])
     for a in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
         print("simirality:", np.nanmax(sim_vector), "answer ", a, ":", corpus_list[1][np.nanargmax(sim_vector)])
@@ -55,18 +56,15 @@ def ReturnBIGGEST(n, array):
     print()
     return 0    
 
-def caluculate(vectorizer, text):
-    X = vectorizer.fit_transform(text)
-    ReturnBIGGEST(0, X)  # 0がinput_text
-    return 0
 
 def doc2vec_sim(input_text, text_word_for_doc2vec):  # doc2vecのモデルを使って類似度を計算。未知語はないものとして
-    model = gensim.models.doc2vec.Doc2Vec.load('../../word2vec/corpus/doc2vec.model')
+    model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
     sim_vector = []
     filtered_words = []
-    input_text = list( set(input_text) & set(model.vocab.keys()) )  #  未知語削除
+    input_text = sorted(list( set(model.vocab.keys() & set(input_text) )), key=input_text.index)  #  未知語削除
+    print(input_text)
     for words_for_doc2vec in text_word_for_doc2vec:
-        filtered_words = list( set(words_for_doc2vec) & set(model.vocab.keys()) )
+        filtered_words = sorted(list( set(words_for_doc2vec) & set(model.vocab.keys())), key=words_for_doc2vec.index)
         filtered_sim = model.n_similarity(input_text, filtered_words)
 #        print(input_text, filtered_words, "|sim=:", filtered_sim)
         if type(filtered_sim) == numpy.ndarray: #  なぜか、simがどちらかが空（未知語しかない）ときにndarrayを返すため
