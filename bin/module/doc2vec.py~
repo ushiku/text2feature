@@ -1,0 +1,13 @@
+import gensim
+
+
+class Doc2Vec:
+
+    def __init__(self):                  # コンストラクタ
+        self.name = ""
+
+    def make_model(self, file_name, model_name):                   # getName()メソッド
+        print(file_name, 'を', model_name, 'に保存します')
+        labeledSentences = gensim.models.doc2vec.TaggedLineDocument(file_name)
+        model = gensim.models.doc2vec.Doc2Vec(labeledSentences, size=100, window=8, min_count=5, workers=4)
+        return self.model
