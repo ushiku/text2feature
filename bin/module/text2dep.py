@@ -79,5 +79,9 @@ def text2dep(input_f, kytea_model=None, eda_model=""):
     f = open(file_eda, 'w')
     f.write(output_eda_str)
     f.close
+    print(type(output_eda_str))
+    eda = output_eda_str.split('\n')
+    eda.pop(-1)
+    eda.pop(-1)
 
-    return (output_eda_str)
+    return (eda)
