@@ -10,7 +10,6 @@ class Dep2Feature:
     '''
     かかり受けから素性を生成する
     '''
-    
     def __init__(self):                  # コンストラクタ
         self.name = ""
         self.corpus_list = []
@@ -58,7 +57,7 @@ class Dep2Feature:
     @classmethod
     def text2dip(self, text):
         '''
-        text は EDAの出力1columずつlist化したもの.  depbigramをとって、text_word形式に
+        text は EDAの出力1columずつlist化したもの.  depbigramと、それにunigramを末尾に加えたdepbigram_unigramを吐く
         '''
         heads, tails, words, poss = [], [], [], []
         for line in text:
@@ -81,10 +80,11 @@ class Dep2Feature:
                 depbigram = depbigram + ' ' + word + words[tail -1]
         return depbigram, depbigram_unigram
 
+
     @classmethod
-    def caluculate(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
+    def vectorizer(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
         '''
-        類似度の高いものを吐く
+        input_listをcorpus_listを使ってvectorizeする
         '''
         words = [0]
         words.extend(input_list[1])
@@ -119,7 +119,70 @@ class Dep2Feature:
         else:
             print("無効なVectorizerです")
             return 0
+        array = vectorizer.fit_transform(text)
+        input_vector = array[:len(input_list[1])].todense()
+        input_vector = np.squeeze(np.asarray(input_vector))
+        corpus_vector = array[len(input_list[1]) + 1:].todense()
+        return input_vector, corpus_vector
 
+
+    @classmethod
+    def calculate(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
+        '''
+        input_listをもらって、一つづつ、calculate_backに回す
+        '''
+        one_input = []
+        for input_number in range(0, len(input_list[0])):
+            for units in input_list:
+                one_input.append(units[input_number])
+            one_output = self.calculate_back(one_input, corpus_list, feature, number, vectorizer)
+            print(one_input[1])
+            one_input = []
+            print(one_output[0])
+            for a in one_output[1]:
+                print(a)
+        return 0
+
+
+    @classmethod
+    def calculate_back(self, one_input, corpus_list, feature='word', number=5, vectorizer='count'):
+        '''
+        one_inputとcorpus_listを使ってベクトル化して、ベクトルとcorpusないの類似度の高いものを吐く
+        '''
+#        print(corpus_list[1])
+        words = [0]
+        words.extend([one_input[1]])
+        words.extend(corpus_list[1])
+        words.pop(0)
+        if feature == 'word':
+            print('word')
+            text = [0]
+            text.extend([one_input[1]])
+            text.extend(corpus_list[1])
+            text.pop(0)
+        elif feature == 'word_dep':
+            print('word_dep')
+            text = [0]
+            text.extend([one_input[3]])
+            text.extend(corpus_list[3])
+            text.pop(0)
+        elif feature == 'word_dep_uni':
+            print('word_dep_uni')
+            text = [0]
+            text.extend([one_input[4]])
+            text.extend(corpus_list[4])
+            text.pop(0)
+        else:
+            print("無効な素性です")
+            return 0
+        print(vectorizer)
+        if vectorizer == 'count':
+            vectorizer = CountVectorizer()
+        elif vectorizer == 'tfidf':
+            vectorizer = TfidfVectorizer()
+        else:
+            print("無効なVectorizerです")
+            return 0
         array = vectorizer.fit_transform(text)
         sim_vector, sim_list = [], []
         input_vector = array[0].todense()
@@ -127,7 +190,7 @@ class Dep2Feature:
         for corpus_vector in array.todense():
             corpus_vector = np.squeeze(np.asarray(corpus_vector))
             sim_vector.append(1-cosine(input_vector, corpus_vector))  # ここcosineが1-cosine距離で定式している?
-        sim_vector[0] = -1  # 自分自身は無視
+#        sim_vector[0] = -1  # 自分自身は無視
         for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
             ans_sim = [np.nanmax(sim_vector), words[np.nanargmax(sim_vector)]]
             sim_list.append(ans_sim)

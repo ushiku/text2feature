@@ -14,9 +14,8 @@ f = open('../model/eda.dump', 'rb')
 input_text = pickle.load(f)
 f.close()
 
-#d2v.make_model('/mnt/mqs01/data/ushiku/BCCWJ/full.word', 'model_sample')
 
-#input_text = '../corpus/sample.eda'
+#input_text = open('../corpus/sample.eda')
 
 #eda形式は、open()でもよい
 corpus = open('../corpus/full.eda')
@@ -25,10 +24,10 @@ corpus = open('../corpus/full.eda')
 sample_list = Dep2Feature.eda2list(corpus)
 input_list = Dep2Feature.eda2list(input_text)
 
+input_vector, corpus_vector = Dep2Feature.vectorizer(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf')
 
-print(input_list)
-#print(Dep2Feature.caluculate(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf'))  # tfidfモデル
-#print(Dep2Feature.caluculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'count'))
-#print(Dep2Feature.caluculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'tfidf'))
-#print(Dep2Feature.caluculate(input_list, sample_list, feature='word_dep_uni', number=5, vectorizer = 'tfidf'))
+#Dep2Feature.calculate(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf') # tfidfモデル
+#Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'count')
+#Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'tfidf')
+#Dep2Feature.calculate(input_list, sample_list, feature='word_dep_uni', number=5, vectorizer = 'tfidf')
 
