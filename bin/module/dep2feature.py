@@ -15,6 +15,58 @@ class Dep2Feature:
         self.name = ""
         self.corpus_list = []
 
+    @classmethod 
+    def eda2full(self, eda):
+        ''' 
+        かかり受け情報を含んだそのままのEDAの結果をlist化
+        '''
+        text_full = []
+        fulls = []
+        for line in eda:
+            line = line.strip()
+            if re.match('ID', line):
+                continue
+            if line == '':
+                text_full.append(fulls)
+                fulls = []
+                continue
+            fulls.append(line)
+        text_full.append(fulls)
+        return text_full
+
+
+    @classmethod
+    def eda2word(self, eda):
+        '''
+        scikit-learn ように ['This is a pen', 'That is a pen']というlist
+        '''
+        text_word = []
+        words = ''
+        for line in eda:
+            line = line.strip()
+            if re.match('ID', line):
+                continue
+            if line == '':
+                text_word.append(words.strip())
+                words = ''
+                continue
+            units = line.split(' ')
+            words = words + ' ' +  units[2]
+        text_word.append(words.strip()) 
+        return text_word
+    
+    @classmethod
+    def eda2word_dep(self, eda):
+        '''
+        かかり受けのbigramモデル
+        '''
+        text_full = self.eda2full(eda)
+        text_word_dep = []
+        for text in text_full:
+            depbigram, depbigram_unigram = self.text2dip(text)
+            text_word_dep.append(depbigram.strip())
+        return text_word_dep
+        
     @classmethod
     def eda2list(self, eda):
         '''
@@ -87,30 +139,29 @@ class Dep2Feature:
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
-        input_list = self.eda2list(input_eda)
-        corpus_list = self.eda2list(corpus_eda)
+        input_length = len(self.eda2full(input_eda))
         words = [0]
-        words.extend(input_list[1])
-        words.extend(corpus_list[1])
+        words.extend(self.eda2word(input_eda))
+        words.extend(self.eda2word(corpus_eda))
         words.pop(0)
         if feature == 'word':
             print('word')
             text = [0]
-            text.extend(input_list[1])
-            text.extend(corpus_list[1])
+            text.extend(self.eda2word(input_eda))
+            text.extend(self.eda2word(corpus_eda))
             text.pop(0)
         elif feature == 'word_dep':
             print('word_dep')
             text = [0]
-            text.extend(input_list[3])
-            text.extend(corpus_list[3])
+            text.extend(self.eda2word_dep(input_eda))
+            text.extend(self.eda2word_dep(corpus_eda))
             text.pop(0)
-        elif feature == 'word_dep_uni':
-            print('word_dep_uni')
-            text = [0]
-            text.extend(input_list[4])
-            text.extend(corpus_list[4])
-            text.pop(0)
+#        elif feature == 'word_dep_uni':
+#            print('word_dep_uni')
+#            text = [0]
+#            text.extend(input_list[4])
+#            text.extend(corpus_list[4])
+#            text.pop(0)
         else:
             print("無効な素性です")
             return 0
@@ -123,9 +174,9 @@ class Dep2Feature:
             print("無効なVectorizerです")
             return 0
         array = vectorizer.fit_transform(text)
-        input_vector = array[:len(input_list[1])].todense()
+        input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
-        corpus_vector = array[len(input_list[1]) + 1:].todense()
+        corpus_vector = array[input_length + 1:].todense()
         return input_vector, corpus_vector
 
 

@@ -17,14 +17,17 @@ f.close()
 #input_text = open('../corpus/sample.eda')
 
 #eda形式は、open()でもよい
-corpus_eda = open('../corpus/full.eda')
+corpus_eda = []
+for line in open('../corpus/full.eda'):
+    corpus_eda.append(line.strip())
+
 
 #eda形式をリスト化する
 #sample_list = Dep2Feature.eda2list(corpus)
 #input_list = Dep2Feature.eda2list(input_text)
 
-input_vector, corpus_vector = Dep2Feature.vectorizer(input_eda, corpus_eda, feature='word', vectorizer = 'tfidf')
-print(input_vector, corpus_vector)
+input_vector, corpus_vector = Dep2Feature.vectorizer(input_eda, corpus_eda, feature='word_dep', vectorizer = 'count')
+print(input_vector.shape, corpus_vector.shape)
 #Dep2Feature.calculate(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf') # tfidfモデル
 #Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'count')
 #Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'tfidf')
