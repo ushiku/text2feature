@@ -11,21 +11,20 @@ import pickle
 
 #かかり受けに時間がかかるので、読み込み用
 f = open('../model/eda.dump', 'rb')
-input_text = pickle.load(f)
+input_eda = pickle.load(f)
 f.close()
-
 
 #input_text = open('../corpus/sample.eda')
 
 #eda形式は、open()でもよい
-corpus = open('../corpus/full.eda')
+corpus_eda = open('../corpus/full.eda')
 
 #eda形式をリスト化する
-sample_list = Dep2Feature.eda2list(corpus)
-input_list = Dep2Feature.eda2list(input_text)
+#sample_list = Dep2Feature.eda2list(corpus)
+#input_list = Dep2Feature.eda2list(input_text)
 
-input_vector, corpus_vector = Dep2Feature.vectorizer(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf')
-
+input_vector, corpus_vector = Dep2Feature.vectorizer(input_eda, corpus_eda, feature='word', vectorizer = 'tfidf')
+print(input_vector, corpus_vector)
 #Dep2Feature.calculate(input_list, sample_list, feature='word', number=5, vectorizer = 'tfidf') # tfidfモデル
 #Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'count')
 #Dep2Feature.calculate(input_list, sample_list, feature='word_dep', number=5, vectorizer = 'tfidf')

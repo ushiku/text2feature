@@ -6,6 +6,7 @@ from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 
+
 class Dep2Feature:
     '''
     かかり受けから素性を生成する
@@ -82,10 +83,12 @@ class Dep2Feature:
 
 
     @classmethod
-    def vectorizer(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
+    def vectorizer(self, input_eda, corpus_eda, feature='word', vectorizer='count'):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
+        input_list = self.eda2list(input_eda)
+        corpus_list = self.eda2list(corpus_eda)
         words = [0]
         words.extend(input_list[1])
         words.extend(corpus_list[1])
@@ -130,6 +133,7 @@ class Dep2Feature:
     def calculate(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
         '''
         input_listをもらって、一つづつ、calculate_backに回す
+        TODO: 入力をvectorにするべき
         '''
         one_input = []
         for input_number in range(0, len(input_list[0])):
