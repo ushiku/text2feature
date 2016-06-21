@@ -66,7 +66,8 @@ class Dep2Feature:
             depbigram, depbigram_unigram = self.text2dip(text)
             text_word_dep.append(depbigram.strip())
         return text_word_dep
-        
+
+#        
     @classmethod
     def eda2list(self, eda):
         '''
@@ -176,81 +177,30 @@ class Dep2Feature:
         array = vectorizer.fit_transform(text)
         input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
-        corpus_vector = array[input_length + 1:].todense()
+        corpus_vector = array[input_length :].todense()
         return input_vector, corpus_vector
 
-
     @classmethod
-    def calculate(self, input_list, corpus_list, feature='word', number=5, vectorizer='count'):
+    def sim_example(self, input_vector, corpus_vector, input_eda, corpus_eda, number=5):
         '''
-        input_listをもらって、一つづつ、calculate_backに回す
-        TODO: 入力をvectorにするべき
+        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す
         '''
-        one_input = []
-        for input_number in range(0, len(input_list[0])):
-            for units in input_list:
-                one_input.append(units[input_number])
-            one_output = self.calculate_back(one_input, corpus_list, feature, number, vectorizer)
-            print(one_input[1])
-            one_input = []
-            print(one_output[0])
-            for a in one_output[1]:
-                print(a)
+        input_word = self.eda2word(input_eda)
+        corpus_word = self.eda2word(corpus_eda)
+        for input_one, input_sent in zip(input_vector, input_word):
+            print("input=", input_sent)
+            sim_vector = []
+            sim_list = []
+            for corpus_one in corpus_vector:
+                corpus_one = np.squeeze(np.asarray(corpus_one))
+                sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
+
+            for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
+                ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
+                sim_vector[np.nanargmax(sim_vector)] = -1
+                print('No.', count, ' sim=', ans_sim[0], ' ', corpus_word[ans_sim[1]])
+            print()
         return 0
-
-
-    @classmethod
-    def calculate_back(self, one_input, corpus_list, feature='word', number=5, vectorizer='count'):
-        '''
-        one_inputとcorpus_listを使ってベクトル化して、ベクトルとcorpusないの類似度の高いものを吐く
-        '''
-#        print(corpus_list[1])
-        words = [0]
-        words.extend([one_input[1]])
-        words.extend(corpus_list[1])
-        words.pop(0)
-        if feature == 'word':
-            print('word')
-            text = [0]
-            text.extend([one_input[1]])
-            text.extend(corpus_list[1])
-            text.pop(0)
-        elif feature == 'word_dep':
-            print('word_dep')
-            text = [0]
-            text.extend([one_input[3]])
-            text.extend(corpus_list[3])
-            text.pop(0)
-        elif feature == 'word_dep_uni':
-            print('word_dep_uni')
-            text = [0]
-            text.extend([one_input[4]])
-            text.extend(corpus_list[4])
-            text.pop(0)
-        else:
-            print("無効な素性です")
-            return 0
-        print(vectorizer)
-        if vectorizer == 'count':
-            vectorizer = CountVectorizer()
-        elif vectorizer == 'tfidf':
-            vectorizer = TfidfVectorizer()
-        else:
-            print("無効なVectorizerです")
-            return 0
-        array = vectorizer.fit_transform(text)
-        sim_vector, sim_list = [], []
-        input_vector = array[0].todense()
-        input_vector = np.squeeze(np.asarray(input_vector))
-        for corpus_vector in array.todense():
-            corpus_vector = np.squeeze(np.asarray(corpus_vector))
-            sim_vector.append(1-cosine(input_vector, corpus_vector))  # ここcosineが1-cosine距離で定式している?
-#        sim_vector[0] = -1  # 自分自身は無視
-        for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
-            ans_sim = [np.nanmax(sim_vector), words[np.nanargmax(sim_vector)]]
-            sim_list.append(ans_sim)
-            sim_vector[np.nanargmax(sim_vector)] = -1
-        return input_vector, sim_list
 
 
     def doc2vec_sim(self, input_text, text_word_for_doc2vec):  # doc2vecのモデルを使って類似度を計算。未知語はないものとして
