@@ -14,8 +14,8 @@ class Dep2Feature:
     '''
     def __init__(self):                  # コンストラクタ
         self.name = ""
-        self.corpus_list = []
-        
+#        self.corpus_list = []
+
 
     @classmethod 
     def eda2full(self, eda):
@@ -37,6 +37,8 @@ class Dep2Feature:
         return text_full
 
 
+# unigram, bigram, trigram, depbigram, deptrigramの3つ
+
     @classmethod
     def eda2word(self, eda):
         '''
@@ -57,10 +59,63 @@ class Dep2Feature:
         text_word.append(words.strip()) 
         return text_word
     
+
+    @classmethod
+    def eda2bigram(self, eda):
+        '''
+        eda2wordようにbigram
+        '''
+        text_word = []
+        words = ''
+        head = '^'
+        tail = '$'
+        for line in eda:
+            line = line.strip()
+            if re.match('ID', line):
+                continue
+            if line == '':
+                text_word.append(words.strip())
+                words = ''
+                continue
+            units = line.split(' ')
+            words = words + ' ' + head+units[2]
+            head = units[2]
+        words = words + ' ' + head + tail
+        text_word.append(words.strip())
+        return text_word
+    
+
+    @classmethod
+    def eda2trigram(self, eda):
+        '''
+        trigramモデル
+        '''
+        text_word = []
+        words = ''
+        head1, head2 = '^', '^'
+        tail1, tail2 = '$', '$'
+        for line in eda:
+            line = line.strip()
+            if re.match('ID', line):
+                continue
+            if line == '':
+                text_word.append(words.strip())
+                words = ''
+                continue
+            units = line.split(' ')
+            words = words + ' ' + head1 + head2 + units[2]
+            head1 = head2
+            head2 = units[2]
+        words = words + ' ' + head1 + head2 + tail1
+        words = words + ' ' + head2 + tail1 + tail2
+        text_word.append(words.strip())
+        return text_word
+
+
     @classmethod
     def eda2word_dep(self, eda):
         '''
-        かかり受けのbigramモデル
+        かかり受けのbigramモデル. eda2wordにたいして、depのbigramをとる
         '''
         text_full = self.eda2full(eda)
         text_word_dep = []
@@ -69,46 +124,6 @@ class Dep2Feature:
             text_word_dep.append(depbigram.strip())
         return text_word_dep
 
-#        
-    @classmethod
-    def eda2list(self, eda):
-        '''
-        edaファイルを展開して、listを吐く
-        '''
-        text_full = []  # かかり受け情報を含んだそのままのEDAの結果をlist化
-        text_word = []  # scikit-learn ように ['This is a pen', 'That is a pen']というlist
-        text_word_for_doc2vec = []  # doc2vec ように[['this', 'is'], [..]]
-        fulls = []
-        words = ''
-        words_for_doc2vec = []
-        for line in eda:
-#        for line in open(file_eda, 'r'):
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_full.append(fulls)
-                fulls = []
-                text_word.append(words.strip())
-                text_word_for_doc2vec.append(words_for_doc2vec)
-                words = ''
-                words_for_doc2vec = []
-                continue
-            units = line.split(' ')
-            fulls.append(line)
-            words = words + ' ' +  units[2]
-            words_for_doc2vec.append(units[2])
-        text_full.append(fulls)
-        text_word.append(words.strip())
-        text_word_for_doc2vec.append(words_for_doc2vec)
-        text_word_dep = []
-        text_word_dep_uni = []
-        for text in text_full:
-            depbigram, depbigram_unigram = self.text2dip(text)
-            text_word_dep.append(depbigram.strip())
-            text_word_dep_uni.append(depbigram_unigram.strip())
-        return_list = (text_full, text_word, text_word_for_doc2vec, text_word_dep, text_word_dep_uni)
-        return return_list
 
     @classmethod
     def text2dip(self, text):
@@ -159,6 +174,18 @@ class Dep2Feature:
             text.extend(self.eda2word_dep(input_eda))
             text.extend(self.eda2word_dep(corpus_eda))
             text.pop(0)
+        elif feature == 'bigram':
+            print('bigram')
+            text = [0]
+            text.extend(self.eda2bigram(input_eda))
+            text.extend(self.eda2bigram(corpus_eda))
+            text.pop(0)
+        elif feature == 'trigram':
+            print('trigram')
+            text = [0]
+            text.extend(self.eda2trigram(input_eda))
+            text.extend(self.eda2trigram(corpus_eda))
+            text.pop(0)
 #        elif feature == 'word_dep_uni':
 #            print('word_dep_uni')
 #            text = [0]
@@ -180,6 +207,8 @@ class Dep2Feature:
         input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
         corpus_vector = array[input_length :].todense()
+#        input_vector = array[:input_length]
+#        corpus_vector = array[:output_vector]
         return input_vector, corpus_vector, array
 
     
@@ -199,6 +228,7 @@ class Dep2Feature:
         idf_list = []
         for count in list_for_count:
             idf_list.append(math.log(len(array[0])/count))
+        idf_list = np.array(idf_list)
         return idf_list
         
 
@@ -215,6 +245,7 @@ class Dep2Feature:
             tf_list.append(word_count)
         tf_list = tf_list/total_word_count
         return tf_list
+
 
     @classmethod
     def sim_example(self, input_vector, corpus_vector, input_eda, corpus_eda, number=5):
