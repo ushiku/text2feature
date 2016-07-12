@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import fileinput
+import math
 import gensim
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -14,6 +15,7 @@ class Dep2Feature:
     def __init__(self):                  # コンストラクタ
         self.name = ""
         self.corpus_list = []
+        
 
     @classmethod 
     def eda2full(self, eda):
@@ -178,7 +180,41 @@ class Dep2Feature:
         input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
         corpus_vector = array[input_length :].todense()
-        return input_vector, corpus_vector
+        return input_vector, corpus_vector, array
+
+    
+    @classmethod
+    def calculate_idf(self, array):
+        '''
+        count_vectorizeしたものから、idf_arrayを作成する(原理的にはtfidf_vectorizeしたものでもいけるはず)
+        '''
+        array = array.toarray()
+        list_for_count = [0] * len(array[0])
+        for document in array:
+            number = 0  # 今アクセスしている要素番号
+            for word_score in document:
+                if word_score > 0:  # count
+                    list_for_count[number] += 1
+                number += 1
+        idf_list = []
+        for count in list_for_count:
+            idf_list.append(math.log(len(array[0])/count))
+        return idf_list
+        
+
+    @classmethod
+    def calculate_tf(self, array, number):
+        '''
+        count_vectorizeの一部を渡すことでtfを作成する。(原理的に、こっちはCount_vectorizeのみ)
+        '''
+        doc_array = array.toarray()[number]
+        total_word_count = 0
+        tf_list = []
+        for word_count in doc_array:
+            total_word_count += word_count
+            tf_list.append(word_count)
+        tf_list = tf_list/total_word_count
+        return tf_list
 
     @classmethod
     def sim_example(self, input_vector, corpus_vector, input_eda, corpus_eda, number=5):
