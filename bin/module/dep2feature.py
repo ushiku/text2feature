@@ -14,8 +14,8 @@ class Dep2Feature:
     '''
     def __init__(self):                  # コンストラクタ
         self.name = ""
-#        self.corpus_list = []
-
+        self.vectorizer = ""
+        self.array = ""
 
     @classmethod 
     def eda2full(self, eda):
@@ -37,100 +37,93 @@ class Dep2Feature:
         return text_full
 
 
-# unigram, bigram, trigram, depbigram, deptrigramの3つ
-
+# unigram, bigram, trigram, depbigram, deptrigramの計5つ
     @classmethod
-    def eda2word(self, eda):
+    def eda2unigram(self, eda):
         '''
-        scikit-learn ように ['This is a pen', 'That is a pen']というlist
+        eda形式からunigramを返す。[[私 は 元気. 肝 座っている], [ . . . ]]
         '''
-        text_word = []
+        text_word = []  # 各articleごとのunigram
         words = ''
-        for line in eda:
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_word.append(words.strip())
-                words = ''
-                continue
-            units = line.split(' ')
-            words = words + ' ' +  units[2]
-        text_word.append(words.strip()) 
+        for article in eda:
+            for sentence in article:
+                for line in sentence:
+                    units = line.strip().split(' ')
+                    words = words + ' ' + units[2]
+            text_word.append(words.strip())
+            words = ''
         return text_word
-    
+
 
     @classmethod
     def eda2bigram(self, eda):
         '''
-        eda2wordようにbigram
+        eda形式からbigramを返す。[[私はは元気 元気. 肝 座 っている], [ . . . ]]
         '''
-        text_word = []
+        text_word = []  # 各articleごとのunigram
         words = ''
         head = '^'
         tail = '$'
-        for line in eda:
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_word.append(words.strip())
-                words = ''
-                continue
-            units = line.split(' ')
-            words = words + ' ' + head+units[2]
-            head = units[2]
-        words = words + ' ' + head + tail
-        text_word.append(words.strip())
+        for article in eda:
+            for sentence in article:
+                for line in sentence:
+                    units = line.strip().split(' ')
+                    words = words + ' ' + head + units[2]
+                    head = units[2]
+                words = words + ' ' + units[2] + tail
+                head = '^'
+            text_word.append(words.strip())
+            words = ''
         return text_word
-    
+
 
     @classmethod
     def eda2trigram(self, eda):
         '''
-        trigramモデル
+        eda形式からbigramを返す。[[私はは元気 元気. 肝 座 っている], [ . . . ]]
         '''
-        text_word = []
+        text_word = []  # 各articleごとのunigram
         words = ''
         head1, head2 = '^', '^'
         tail1, tail2 = '$', '$'
-        for line in eda:
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_word.append(words.strip())
-                words = ''
-                continue
-            units = line.split(' ')
-            words = words + ' ' + head1 + head2 + units[2]
-            head1 = head2
-            head2 = units[2]
-        words = words + ' ' + head1 + head2 + tail1
-        words = words + ' ' + head2 + tail1 + tail2
-        text_word.append(words.strip())
+        for article in eda:
+            for sentence in article:
+                for line in sentence:
+                    units = line.strip().split(' ')
+                    words = words + ' ' + head1 + head2 + units[2]
+                    head1 = head2
+                    head2 = units[2]
+                words = words + ' ' + head1 + head2 +tail1
+                words = words + ' ' + head1 + head2 + units[2]
+                head1, head2 = '^', '^'
+            text_word.append(words.strip())
+            words = ''
         return text_word
 
 
     @classmethod
-    def eda2word_dep(self, eda):
+    def eda2dep_bigram(self, eda):
         '''
         かかり受けのbigramモデル. eda2wordにたいして、depのbigramをとる
         '''
-        text_full = self.eda2full(eda)
-        text_word_dep = []
-        for text in text_full:
-            depbigram, depbigram_unigram = self.text2dip(text)
-            text_word_dep.append(depbigram.strip())
-        return text_word_dep
+        text_word = []
+        for article in eda:
+            for sentence in article:
+                if sentence == []:
+                    continue
+                dep_bigram =  self.text2dep_bigram(sentence)
+                text_word.append(dep_bigram.strip())
+        return text_word
 
 
     @classmethod
-    def text2dip(self, text):
+    def text2dep_bigram(self, text):
         '''
-        text は EDAの出力1columずつlist化したもの.  depbigramと、それにunigramを末尾に加えたdepbigram_unigramを吐く
+        depbigramを吐く. eda2dep_bigramの実行部分
         '''
+        dep_bigram = ''
         heads, tails, words, poss = [], [], [], []
+
         for line in text:
             line = line.strip()
             units = line.split(' ')
@@ -138,86 +131,181 @@ class Dep2Feature:
             tails.append(int(units[1]))
             words.append(units[2])
             poss.append(units[3])
-        depbigram_unigram = ''
-        depbigram = ''  # depを利用したbigram
-        depbigram = '^' + words[0]
-        for tail, word  in zip(tails, words):
+        dep_bigram = '^' + words[0]
+        for tail, word in zip(tails, words):
             if tail == -1 or 0:
-                depbigram = depbigram + ' ' + word + '$'
-                depbigram_unigram = depbigram
-                for word in words:
-                    depbigram_unigram = depbigram_unigram + ' ' + word
+                dep_bigram = dep_bigram + ' ' + word + '$'
             else:
-                depbigram = depbigram + ' ' + word + words[tail -1]
-        return depbigram, depbigram_unigram
+                dep_bigram = dep_bigram + ' ' + word + words[tail -1]
+        return dep_bigram
+
+    
+    @classmethod
+    def eda2dep_trigram(self, eda):
+        '''
+        depのtrigramをとる
+        '''
+        text_word = []
+        for article in eda:
+            for sentence in article:
+                if sentence == []:
+                    continue
+                dep_bigram =  self.text2dep_trigram(sentence)
+                text_word.append(dep_bigram.strip())
+        return text_word
 
 
     @classmethod
-    def vectorizer(self, input_eda, corpus_eda, feature='word', vectorizer='count'):
+    def text2dep_trigram(self, text):
+        '''
+        eda2dep_trigramのかかり受け部分
+        '''
+        dep_trigram = ''
+        heads, tails, words, poss = [], [], [], []
+        
+        for line in text:
+            line = line.strip()
+            units = line.split(' ')
+            heads.append(int(units[0]))
+            tails.append(int(units[1]))
+            words.append(units[2])
+            poss.append(units[3])
+        if len(words) >= 2:  # 一つのときはこの動作を行わない
+            dep_trigram = '^' + words[0] + words[1]
+        dep_bigram = dep_trigram + ' ' + '^' + '^' + words[0] 
+        for tail, word in zip(tails, words):
+            if tail == -1 or 0:
+                dep_trigram = dep_trigram + ' ' + word + '$' + '$'  # 1個後ろもない
+            elif tails[tail-1] == -1 or 0:
+                dep_trigram = dep_trigram + ' ' + word + words[tail-1] + '$'  # 2個後ろがない
+            else:
+                dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
+        return dep_trigram
+        
+
+    def vectorize_doc2vec(self, input_eda):
+        '''
+        input_listをdoc2vecを利用してvectorizeする
+        '''
+        model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
+        input_vector = []
+        first_flag = 1
+        for text in text_full:
+            words = []
+            for line in text:
+                line = line.strip()
+                units = line.split(' ')
+                words.append(units[2])
+            if first_flag == 1:
+                input_vector = model.infer_vector(words)
+                first_flag = 0
+            else:
+                input_vector = np.vstack((input_vector, model.infer_vector(words)))
+        return input_vector
+
+    def vectorize_doc2vec(self, input_eda):
+        '''
+        input_listをdoc2vecを利用してvectorizeする
+        '''
+        model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
+        input_vector = []
+        first_flag = 1
+        for article in input_eda:
+            words = []
+            for sentence in article:
+                for line in sentence:
+                    line = line.strip()
+                    units = line.split(' ')
+                    words.append(units[2])
+            if first_flag == 1:
+                input_vector = model.infer_vector(words)
+                first_flag = 0
+            else:
+                input_vector = np.vstack((input_vector, model.infer_vector(words)))
+        return input_vector
+
+
+    def vectorize(self, input_eda, corpus_eda, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
-        input_length = len(self.eda2full(input_eda))
+        input_length = len(input_eda)
         words = [0]
-        words.extend(self.eda2word(input_eda))
-        words.extend(self.eda2word(corpus_eda))
+        words.extend(self.eda2unigram(input_eda))
+        words.extend(self.eda2unigram(corpus_eda))
         words.pop(0)
-        if feature == 'word':
-            print('word')
+        
+        text_list = []
+        if unigram == 1:
+            print('unigram')
             text = [0]
-            text.extend(self.eda2word(input_eda))
-            text.extend(self.eda2word(corpus_eda))
+            text.extend(self.eda2unigram(input_eda))
+            text.extend(self.eda2unigram(corpus_eda))
             text.pop(0)
-        elif feature == 'word_dep':
-            print('word_dep')
-            text = [0]
-            text.extend(self.eda2word_dep(input_eda))
-            text.extend(self.eda2word_dep(corpus_eda))
-            text.pop(0)
-        elif feature == 'bigram':
+            text_list.append(text)
+        if bigram == 1:
             print('bigram')
             text = [0]
             text.extend(self.eda2bigram(input_eda))
             text.extend(self.eda2bigram(corpus_eda))
             text.pop(0)
-        elif feature == 'trigram':
+            text_list.append(text)
+        if trigram == 1:
             print('trigram')
             text = [0]
             text.extend(self.eda2trigram(input_eda))
             text.extend(self.eda2trigram(corpus_eda))
             text.pop(0)
-#        elif feature == 'word_dep_uni':
-#            print('word_dep_uni')
-#            text = [0]
-#            text.extend(input_list[4])
-#            text.extend(corpus_list[4])
-#            text.pop(0)
-        else:
-            print("無効な素性です")
+            text_list.append(text)
+        if dep_bigram == 1:
+            print('dep_bigram')
+            text = [0]
+            text.extend(self.eda2dep_bigram(input_eda))
+            text.extend(self.eda2dep_bigram(corpus_eda))
+            text.pop(0)
+            text_list.append(text)
+        if dep_trigram == 1:
+            print('dep_trigram')
+            text = [0]
+            text.extend(self.eda2dep_trigram(input_eda))
+            text.extend(self.eda2dep_trigram(corpus_eda))
+            text.pop(0)
+            text_list.append(text)
+        if text_list == []:
+            print('素性が選択されていません')
             return 0
+        
+        text_mixed = []
+        for text in text_list:
+            if text_mixed == []:
+                text_mixed = text
+            else:
+                for line_text_mixed, line_text in zip(text_mixed, text):
+                    text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
+
         print(vectorizer)
+        self.count_array = CountVectorizer().fit_transform(text_mixed)  # tf計算用
+
         if vectorizer == 'count':
-            vectorizer = CountVectorizer()
+            self.vectorizer = CountVectorizer()
         elif vectorizer == 'tfidf':
-            vectorizer = TfidfVectorizer()
+            self.vectorizer = TfidfVectorizer()
         else:
             print("無効なVectorizerです")
             return 0
-        array = vectorizer.fit_transform(text)
-        input_vector = array[:input_length].todense()
+        self.array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
+        input_vector = self.array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
-        corpus_vector = array[input_length :].todense()
-#        input_vector = array[:input_length]
-#        corpus_vector = array[:output_vector]
-        return input_vector, corpus_vector, array
+        corpus_vector = self.array[input_length :].todense()
+        corpus_vector = np.squeeze(np.asarray(corpus_vector))
+        return input_vector, corpus_vector
 
     
-    @classmethod
-    def calculate_idf(self, array):
+    def calculate_idf(self):
         '''
         count_vectorizeしたものから、idf_arrayを作成する(原理的にはtfidf_vectorizeしたものでもいけるはず)
         '''
-        array = array.toarray()
+        array = self.count_array.toarray()
         list_for_count = [0] * len(array[0])
         for document in array:
             number = 0  # 今アクセスしている要素番号
@@ -232,12 +320,11 @@ class Dep2Feature:
         return idf_list
         
 
-    @classmethod
-    def calculate_tf(self, array, number):
+    def calculate_tf(self, number):
         '''
-        count_vectorizeの一部を渡すことでtfを作成する。(原理的に、こっちはCount_vectorizeのみ)
+        count_vectorizeの一部を渡すことでtfを作成する。
         '''
-        doc_array = array.toarray()[number]
+        doc_array = self.count_array.toarray()[number]
         total_word_count = 0
         tf_list = []
         for word_count in doc_array:
@@ -252,8 +339,8 @@ class Dep2Feature:
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す
         '''
-        input_word = self.eda2word(input_eda)
-        corpus_word = self.eda2word(corpus_eda)
+        input_word = self.eda2unigram(input_eda)
+        corpus_word = self.eda2unigram(corpus_eda)
         for input_one, input_sent in zip(input_vector, input_word):
             print("input=", input_sent)
             sim_vector = []
@@ -261,31 +348,10 @@ class Dep2Feature:
             for corpus_one in corpus_vector:
                 corpus_one = np.squeeze(np.asarray(corpus_one))
                 sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
-
             for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
                 ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
+                print('配列:', np.nanargmax(sim_vector), 'No.', count, ' sim=', ans_sim[0], ' ', corpus_word[ans_sim[1]])
                 sim_vector[np.nanargmax(sim_vector)] = -1
-                print('No.', count, ' sim=', ans_sim[0], ' ', corpus_word[ans_sim[1]])
             print()
         return 0
 
-
-    def doc2vec_sim(self, input_text, text_word_for_doc2vec):  # doc2vecのモデルを使って類似度を計算。未知語はないものとして
-        model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
-        sim_vector = []
-        filtered_words = []
-        input_text = sorted(list( set(model.vocab.keys() & set(input_text) )), key=input_text.index)  #  未知語削除
-        print(input_text)
-        for words_for_doc2vec in text_word_for_doc2vec:
-            filtered_words = sorted(list( set(words_for_doc2vec) & set(model.vocab.keys())), key=words_for_doc2vec.index)
-            filtered_sim = model.n_similarity(input_text, filtered_words)
-        #        print(input_text, filtered_words, "|sim=:", filtered_sim)
-            if type(filtered_sim) == numpy.ndarray: #  なぜか、simがどちらかが空（未知語しかない）ときにndarrayを返すため
-                filtered_sim = 0
-            sim_vector.append(filtered_sim)
-        print("original:", input_list[1][0])
-        for a in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
-            print("simirality:", np.nanmax(sim_vector), "answer ", a, ":", corpus_list[1][np.nanargmax(sim_vector)])
-            sim_vector[np.nanargmax(sim_vector)] = -1
-        print()
-        return 0
