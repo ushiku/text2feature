@@ -117,14 +117,14 @@ class Text2dep:
             sentences = article.split('ID=')
             sentences.pop(0)
             for sentence in sentences:
-            units = sentence.split('\n')
-            units.pop(-1)
-            units.pop(-1)
-            try:
-                units.pop(0)
-                        new_article.append(units)
-            except:
-                pass
+                units = sentence.split('\n')
+                units.pop(-1)
+                units.pop(-1)
+                try:
+                    units.pop(0)
+                    new_article.append(units)
+                except:
+                    pass
             new_output.append(new_article)
             new_article = []
         return new_output, output_eda_list
@@ -135,5 +135,4 @@ class Text2dep:
 
     # KyTeaの出力をEDAに渡しただけ
     def t2f(self, input_f, kytea_model=None, eda_model=''):
-        
         return self.eda(self.kytea(input_f, kytea_model, pipe_eda=True), eda_model, pipe_kytea=True)
