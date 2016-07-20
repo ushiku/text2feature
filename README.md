@@ -32,7 +32,7 @@
 - depbigram: かかり元とかかり先を繋げたBoWベクトルを作成
 - deptrigram: かかり元、かかり先、かかり先のかかり先を繋げたBoWベクトルを作成
 
-- count/tfidf: ベクトルをBoWかtfidfかで作る
+- count/tfidf: ベクトルをBoWかtfidfかで作る。tfidfはscikit-learnを利用しています。
 
 ### corpus
 必要なcorpusは二つです。
@@ -44,12 +44,11 @@
 #### Install
 CentOS, python3.4.3で動作確認をしています。Python2系統では残念なが利用できません。
 必要ライブラリなど
-KyTea: http://www.phontron.com/kytea/index-ja.html
-EDA: http://www.ar.media.kyoto-u.ac.jp/tool/EDA/
-scikit-learn
-numpy
-scipy
-
+- KyTea: http://www.phontron.com/kytea/index-ja.html
+- EDA: http://www.ar.media.kyoto-u.ac.jp/tool/EDA/
+- scikit-learn
+- numpy
+- scipy
 
 ```
 pip install git+https://(アカウント名):(パスワード)@github.com/ushiku/text2feature.git
