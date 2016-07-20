@@ -248,42 +248,42 @@ class Dep2Feature:
         
         text_list = []
         if unigram == 1:
-            print('unigram')
+#            print('unigram')
             text = [0]
             text.extend(self.eda2unigram(self.input_eda))
             text.extend(self.eda2unigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if bigram == 1:
-            print('bigram')
+#            print('bigram')
             text = [0]
             text.extend(self.eda2bigram(self.input_eda))
             text.extend(self.eda2bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if trigram == 1:
-            print('trigram')
+#            print('trigram')
             text = [0]
             text.extend(self.eda2trigram(self.input_eda))
             text.extend(self.eda2trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_bigram == 1:
-            print('dep_bigram')
+#            print('dep_bigram')
             text = [0]
             text.extend(self.eda2dep_bigram(self.input_eda))
             text.extend(self.eda2dep_bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_trigram == 1:
-            print('dep_trigram')
+#            print('dep_trigram')
             text = [0]
             text.extend(self.eda2dep_trigram(self.input_eda))
             text.extend(self.eda2dep_trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if text_list == []:
-            print('素性が選択されていません')
+ #           print('Error:素性が選択されていません')
             return 0
         
         text_mixed = []
@@ -302,7 +302,7 @@ class Dep2Feature:
         elif vectorizer == 'tfidf':
             self.vectorizer = TfidfVectorizer()
         else:
-            print("無効なVectorizerです")
+            print("Error:無効なVectorizerです")
             return 0
         array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
         input_vector = array[:input_length].todense()
