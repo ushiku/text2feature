@@ -36,13 +36,13 @@
 
 ### corpus
 必要なcorpusは二つです。
-ベクトルにしたいターゲットの文書corpusと、tfidfなどの計算用の大規模なgeneral_corpusです。
+ベクトルにしたいターゲットの文書corpusと、tfidfなどのcorpusです。
 
 ### model
-必要なモデルは、KyTea, EDAのモデルです。より高精度のベクトル化をする上では、それぞれAdaptationしたmodelの利用が望まれます。
+必要なモデルは、KyTea, EDAのモデルです。対象のテキストにAdaptationしたmodelの利用が望まれます。
 
 #### Install
-CentOS, python3.4.3で動作確認をしています。Python2系統では残念なが利用できません。
+Python3.4.3で動作確認をしています。Python2系統では残念ながら利用できません。
 必要ライブラリなど
 - KyTea: http://www.phontron.com/kytea/index-ja.html
 - EDA: http://www.ar.media.kyoto-u.ac.jp/tool/EDA/
