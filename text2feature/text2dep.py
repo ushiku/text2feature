@@ -61,7 +61,7 @@ class Text2dep:
         #Ture ならEDAに渡すためにそのまま返す
         if pipe_eda == False:
             #kyteaの出力を整形、EOFで区切ってlistに追加するために
-input_f, kytea_model=None, pipe_eda=False)            #kyteaのEOFの出力を取得したり、それで分割したり、文字コード考慮したり
+            #kyteaのEOFの出力を取得したり、それで分割したり、文字コード考慮したり
             kytea_line_list = output_kytea.decode('utf-8').split("\n")
             EOF_kytea = kytea_line_list[output_kytea.decode('utf-8').count('\n') - 1]
 
