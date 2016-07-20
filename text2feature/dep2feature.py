@@ -273,7 +273,6 @@ class Dep2Feature:
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-        print(vectorizer)
         self.count_array = CountVectorizer().fit_transform(text_mixed)  # tf計算用
         if vectorizer == 'count':
             self.vectorizer = CountVectorizer()
