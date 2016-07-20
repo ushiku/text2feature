@@ -74,7 +74,6 @@ class Text2dep:
             return output_kytea_list
 
         else:
-            print ('KyTea Done\n')
             return output_kytea
 
     #EDAコマンド実行部分
