@@ -127,10 +127,6 @@ class Text2dep:
             new_article = []
         return new_output, output_eda_list
 
-
-
-        
-
     # KyTeaの出力をEDAに渡しただけ
     def t2f(self, input_f, kytea_model=None, eda_model=''):
         return self.eda(self.kytea(input_f, kytea_model, pipe_eda=True), eda_model, pipe_kytea=True)

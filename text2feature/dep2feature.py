@@ -18,10 +18,9 @@ class Dep2Feature:
         self.name = ""
         self.vectorizer = ""
 
-
-    @classmethod 
+    @classmethod
     def load_eda(self, eda_file_path):
-        ''' 
+        '''
         かかり受け情報を含んだそのままのEDAの結果をlist化
         '''
         text_full = []
@@ -37,7 +36,6 @@ class Dep2Feature:
             fulls.append(line)
         text_full.append(fulls)
         return text_full
-
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
     @classmethod
@@ -55,7 +53,6 @@ class Dep2Feature:
             text_word.append(words.strip())
             words = ''
         return text_word
-
 
     @classmethod
     def eda2bigram(self, eda):
@@ -78,7 +75,6 @@ class Dep2Feature:
             words = ''
         return text_word
 
-
     @classmethod
     def eda2trigram(self, eda):
         '''
@@ -95,13 +91,12 @@ class Dep2Feature:
                     words = words + ' ' + head1 + head2 + units[2]
                     head1 = head2
                     head2 = units[2]
-                words = words + ' ' + head1 + head2 +tail1
+                words = words + ' ' + head1 + head2 + tail1
                 words = words + ' ' + head1 + head2 + units[2]
                 head1, head2 = '^', '^'
             text_word.append(words.strip())
             words = ''
         return text_word
-
 
     @classmethod
     def eda2dep_bigram(self, eda):
@@ -113,10 +108,9 @@ class Dep2Feature:
             for sentence in article:
                 if sentence == []:
                     continue
-                dep_bigram =  self.text2dep_bigram(sentence)
+                dep_bigram = self.text2dep_bigram(sentence)
                 text_word.append(dep_bigram.strip())
         return text_word
-
 
     @classmethod
     def text2dep_bigram(self, text):
@@ -138,10 +132,9 @@ class Dep2Feature:
             if tail == -1 or 0:
                 dep_bigram = dep_bigram + ' ' + word + '$'
             else:
-                dep_bigram = dep_bigram + ' ' + word + words[tail -1]
+                dep_bigram = dep_bigram + ' ' + word + words[tail - 1]
         return dep_bigram
 
-    
     @classmethod
     def eda2dep_trigram(self, eda):
         '''
@@ -152,10 +145,9 @@ class Dep2Feature:
             for sentence in article:
                 if sentence == []:
                     continue
-                dep_bigram =  self.text2dep_trigram(sentence)
+                dep_bigram = self.text2dep_trigram(sentence)
                 text_word.append(dep_bigram.strip())
         return text_word
-
 
     @classmethod
     def text2dep_trigram(self, text):
@@ -164,7 +156,6 @@ class Dep2Feature:
         '''
         dep_trigram = ''
         heads, tails, words, poss = [], [], [], []
-        
         for line in text:
             line = line.strip()
             units = line.split(' ')
@@ -174,7 +165,7 @@ class Dep2Feature:
             poss.append(units[3])
         if len(words) >= 2:  # 一つのときはこの動作を行わない
             dep_trigram = '^' + words[0] + words[1]
-        dep_bigram = dep_trigram + ' ' + '^' + '^' + words[0] 
+        dep_bigram = dep_trigram + ' ' + '^' + '^' + words[0]
         for tail, word in zip(tails, words):
             if tail == -1 or 0:
                 dep_trigram = dep_trigram + ' ' + word + '$' + '$'  # 1個後ろもない
@@ -183,7 +174,6 @@ class Dep2Feature:
             else:
                 dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
         return dep_trigram
-        
 
     def vectorize_doc2vec(self, input_eda):
         '''
@@ -204,13 +194,11 @@ class Dep2Feature:
             else:
                 input_vector = np.vstack((input_vector, model.infer_vector(words)))
         return input_vector
-    
 
     def doc2vec(self, model_path):
         input_eda = self.vectorize_doc2vec(self.input_eda, model_path)
         corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
         return input_eda, corpus_eda
-
 
     @classmethod
     def vectorize_doc2vec(self, input_eda, model_path):
@@ -234,7 +222,6 @@ class Dep2Feature:
                 input_vector = np.vstack((input_vector, model.infer_vector(words)))
         return input_vector
 
-
     def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
         '''
         input_listをcorpus_listを使ってvectorizeする
@@ -245,47 +232,40 @@ class Dep2Feature:
         words.pop(0)
         input_length = len(self.input_eda)
         corpus_length = len(self.corpus_eda)
-        
         text_list = []
         if unigram == 1:
-#            print('unigram')
             text = [0]
             text.extend(self.eda2unigram(self.input_eda))
             text.extend(self.eda2unigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if bigram == 1:
-#            print('bigram')
             text = [0]
             text.extend(self.eda2bigram(self.input_eda))
             text.extend(self.eda2bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if trigram == 1:
-#            print('trigram')
             text = [0]
             text.extend(self.eda2trigram(self.input_eda))
             text.extend(self.eda2trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_bigram == 1:
-#            print('dep_bigram')
             text = [0]
             text.extend(self.eda2dep_bigram(self.input_eda))
             text.extend(self.eda2dep_bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_trigram == 1:
-#            print('dep_trigram')
             text = [0]
             text.extend(self.eda2dep_trigram(self.input_eda))
             text.extend(self.eda2dep_trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if text_list == []:
- #           print('Error:素性が選択されていません')
+            print('Error:素性が選択されていません')
             return 0
-        
         text_mixed = []
         for text in text_list:
             if text_mixed == []:
@@ -293,10 +273,8 @@ class Dep2Feature:
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-
         print(vectorizer)
         self.count_array = CountVectorizer().fit_transform(text_mixed)  # tf計算用
-
         if vectorizer == 'count':
             self.vectorizer = CountVectorizer()
         elif vectorizer == 'tfidf':
@@ -307,11 +285,10 @@ class Dep2Feature:
         array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
         input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
-        corpus_vector = array[input_length :].todense()
+        corpus_vector = array[input_length:].todense()
         corpus_vector = np.squeeze(np.asarray(corpus_vector))
         return input_vector, corpus_vector
 
-    
     def calculate_idf(self):
         '''
         count_vectorizeしたものから、idf_arrayを作成する(原理的にはtfidf_vectorizeしたものでもいけるはず)
@@ -329,7 +306,6 @@ class Dep2Feature:
             idf_list.append(math.log(len(array[0])/count))
         idf_list = np.array(idf_list)
         return idf_list
-        
 
     def calculate_tf(self, number):
         '''
@@ -343,7 +319,6 @@ class Dep2Feature:
             tf_list.append(word_count)
         tf_list = tf_list/total_word_count
         return tf_list
-
 
     def sim_example(self, input_vector, corpus_vector, number=5):
         '''
@@ -364,4 +339,3 @@ class Dep2Feature:
                 sim_vector[np.nanargmax(sim_vector)] = -1
             print()
         return 0
-
