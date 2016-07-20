@@ -12,19 +12,21 @@ class Dep2Feature:
     '''
     かかり受けから素性を生成する
     '''
-    def __init__(self):                  # コンストラクタ
+    def __init__(self, input_eda, corpus_eda):                  # コンストラクタ
+        self.input_eda = input_eda
+        self.corpus_eda = corpus_eda
         self.name = ""
         self.vectorizer = ""
-        self.array = ""
+
 
     @classmethod 
-    def eda2full(self, eda):
+    def load_eda(self, eda_file_path):
         ''' 
         かかり受け情報を含んだそのままのEDAの結果をlist化
         '''
         text_full = []
         fulls = []
-        for line in eda:
+        for line in open(eda_file_path, 'r'):
             line = line.strip()
             if re.match('ID', line):
                 continue
@@ -202,12 +204,20 @@ class Dep2Feature:
             else:
                 input_vector = np.vstack((input_vector, model.infer_vector(words)))
         return input_vector
+    
 
-    def vectorize_doc2vec(self, input_eda):
+    def doc2vec(self, model_path):
+        input_eda = self.vectorize_doc2vec(self.input_eda, model_path)
+        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
+        return input_eda, corpus_eda
+
+
+    @classmethod
+    def vectorize_doc2vec(self, input_eda, model_path):
         '''
         input_listをdoc2vecを利用してvectorizeする
         '''
-        model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
+        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
         input_vector = []
         first_flag = 1
         for article in input_eda:
@@ -225,50 +235,51 @@ class Dep2Feature:
         return input_vector
 
 
-    def vectorize(self, input_eda, corpus_eda, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
+    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
-        input_length = len(input_eda)
         words = [0]
-        words.extend(self.eda2unigram(input_eda))
-        words.extend(self.eda2unigram(corpus_eda))
+        words.extend(self.eda2unigram(self.input_eda))
+        words.extend(self.eda2unigram(self.corpus_eda))
         words.pop(0)
+        input_length = len(self.input_eda)
+        corpus_length = len(self.corpus_eda)
         
         text_list = []
         if unigram == 1:
             print('unigram')
             text = [0]
-            text.extend(self.eda2unigram(input_eda))
-            text.extend(self.eda2unigram(corpus_eda))
+            text.extend(self.eda2unigram(self.input_eda))
+            text.extend(self.eda2unigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if bigram == 1:
             print('bigram')
             text = [0]
-            text.extend(self.eda2bigram(input_eda))
-            text.extend(self.eda2bigram(corpus_eda))
+            text.extend(self.eda2bigram(self.input_eda))
+            text.extend(self.eda2bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if trigram == 1:
             print('trigram')
             text = [0]
-            text.extend(self.eda2trigram(input_eda))
-            text.extend(self.eda2trigram(corpus_eda))
+            text.extend(self.eda2trigram(self.input_eda))
+            text.extend(self.eda2trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_bigram == 1:
             print('dep_bigram')
             text = [0]
-            text.extend(self.eda2dep_bigram(input_eda))
-            text.extend(self.eda2dep_bigram(corpus_eda))
+            text.extend(self.eda2dep_bigram(self.input_eda))
+            text.extend(self.eda2dep_bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_trigram == 1:
             print('dep_trigram')
             text = [0]
-            text.extend(self.eda2dep_trigram(input_eda))
-            text.extend(self.eda2dep_trigram(corpus_eda))
+            text.extend(self.eda2dep_trigram(self.input_eda))
+            text.extend(self.eda2dep_trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if text_list == []:
@@ -293,10 +304,10 @@ class Dep2Feature:
         else:
             print("無効なVectorizerです")
             return 0
-        self.array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
-        input_vector = self.array[:input_length].todense()
+        array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
+        input_vector = array[:input_length].todense()
         input_vector = np.squeeze(np.asarray(input_vector))
-        corpus_vector = self.array[input_length :].todense()
+        corpus_vector = array[input_length :].todense()
         corpus_vector = np.squeeze(np.asarray(corpus_vector))
         return input_vector, corpus_vector
 
@@ -322,7 +333,7 @@ class Dep2Feature:
 
     def calculate_tf(self, number):
         '''
-        count_vectorizeの一部を渡すことでtfを作成する。
+        count_vectorizeの一部を渡すことでtfを作成する。numberはinputの何ファイル目かに対応
         '''
         doc_array = self.count_array.toarray()[number]
         total_word_count = 0
@@ -334,13 +345,12 @@ class Dep2Feature:
         return tf_list
 
 
-    @classmethod
-    def sim_example(self, input_vector, corpus_vector, input_eda, corpus_eda, number=5):
+    def sim_example(self, input_vector, corpus_vector, number=5):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す
         '''
-        input_word = self.eda2unigram(input_eda)
-        corpus_word = self.eda2unigram(corpus_eda)
+        input_word = self.eda2unigram(self.input_eda)
+        corpus_word = self.eda2unigram(self.corpus_eda)
         for input_one, input_sent in zip(input_vector, input_word):
             print("input=", input_sent)
             sim_vector = []
