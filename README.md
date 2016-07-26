@@ -50,9 +50,4 @@ Python3.4.3で動作確認をしています。Python2系統では残念なが�
 - numpy
 - scipy
 
-```
-pip install git+https://(アカウント名):(パスワード)@github.com/ushiku/text2feature.git
-```
-
-現在は、privateにしか公開していません。来週には公開予定です。
 
