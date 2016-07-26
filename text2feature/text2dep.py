@@ -151,6 +151,3 @@ class Text2dep:
             output.append(article)
             article = []
         return output
-
-
-                
