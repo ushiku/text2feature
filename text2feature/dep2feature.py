@@ -10,32 +10,13 @@ from sklearn.feature_extraction.text import CountVectorizer
 
 class Dep2Feature:
     '''
-    かかり受けから素性を生成する
+    かかり受けから素性を生成する。
     '''
     def __init__(self, input_eda, corpus_eda):                  # コンストラクタ
         self.input_eda = input_eda
         self.corpus_eda = corpus_eda
         self.name = ""
         self.vectorizer = ""
-
-    @classmethod
-    def load_eda(self, eda_file_path):
-        '''
-        かかり受け情報を含んだそのままのEDAの結果をlist化
-        '''
-        text_full = []
-        fulls = []
-        for line in open(eda_file_path, 'r'):
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_full.append(fulls)
-                fulls = []
-                continue
-            fulls.append(line)
-        text_full.append(fulls)
-        return text_full
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
     @classmethod

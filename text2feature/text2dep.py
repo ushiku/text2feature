@@ -34,7 +34,6 @@ class Text2dep:
                 print ('正しくインストールされているか確認してください')
                 print ('http://www.ar.media.kyoto-u.ac.jp/tool/EDA/')
 
-
     #KyTeaコマンド実行部分
     def kytea(self, input_f, kytea_model=None, pipe_eda=False):        
         import subprocess
@@ -130,3 +129,24 @@ class Text2dep:
     # KyTeaの出力をEDAに渡しただけ
     def t2f(self, input_f, kytea_model=None, eda_model=''):
         return self.eda(self.kytea(input_f, kytea_model, pipe_eda=True), eda_model, pipe_kytea=True)
+
+    
+    @classmethod
+    def load_eda(self, eda_file_path):
+        '''
+        edaの出力結果のファイルパスから、eda形式にする。
+        '''
+        print("a")
+        text_full = []
+        fulls = []
+        for line in open(eda_file_path, 'r'):
+            line = line.strip()
+            if re.match('ID', line):
+                continue
+            if line == '':
+                text_full.append(fulls)
+                fulls = []
+                continue
+            fulls.append(line)
+        text_full.append(fulls)
+        return text_full
