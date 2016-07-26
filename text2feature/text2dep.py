@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 
 class Text2dep:
 
@@ -33,7 +34,6 @@ class Text2dep:
                 print ('"eda"のコマンドが使えません')
                 print ('正しくインストールされているか確認してください')
                 print ('http://www.ar.media.kyoto-u.ac.jp/tool/EDA/')
-
 
     #KyTeaコマンド実行部分
     def kytea(self, input_f, kytea_model=None, pipe_eda=False):        
@@ -130,3 +130,24 @@ class Text2dep:
     # KyTeaの出力をEDAに渡しただけ
     def t2f(self, input_f, kytea_model=None, eda_model=''):
         return self.eda(self.kytea(input_f, kytea_model, pipe_eda=True), eda_model, pipe_kytea=True)
+
+    
+    @classmethod
+    def load_eda(self, eda_file_path_list):
+        '''
+        edaの出力結果のファイルパスから、eda形式にする。
+        '''
+        output, article, units = [], [], []
+        for eda_file_path in eda_file_path_list:
+            for unit in open(eda_file_path, 'r'):
+                unit = unit.strip()
+                if re.match('ID', unit):
+                    continue
+                if unit == '':
+                    article.append(units)
+                    units = []
+                    continue
+                units.append(unit)
+            output.append(article)
+            article = []
+        return output
