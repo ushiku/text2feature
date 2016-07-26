@@ -13,5 +13,5 @@ setup(
         url              = '',
         keywords         = '',
         packages         = find_packages(),
-        install_requires = [numpy==1.10.1, scikit-learn==0.17, scipy==0.16.1]
+        install_requires = ['numpy', 'scikit-learn', 'scipy']
         )
