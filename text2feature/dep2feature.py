@@ -15,7 +15,6 @@ class Dep2Feature:
     def __init__(self, input_eda, corpus_eda):                  # コンストラクタ
         self.input_eda = input_eda
         self.corpus_eda = corpus_eda
-        self.name = ""
         self.vectorizer = ""
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
@@ -156,11 +155,11 @@ class Dep2Feature:
                 dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
         return dep_trigram
 
-    def vectorize_doc2vec(self, input_eda):
+    def vectorize_doc2vec(self, input_eda, model_path):
         '''
         input_listをdoc2vecを利用してvectorizeする
         '''
-        model = gensim.models.doc2vec.Doc2Vec.load('../model/doc2vec.model')
+        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
         input_vector = []
         first_flag = 1
         for text in text_full:
@@ -302,7 +301,7 @@ class Dep2Feature:
 
     def sim_example_cos(self, input_vector, corpus_vector, number=5):
         '''
-        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す
+        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(cos_simmirarity)
         '''
         input_word = self.eda2unigram(self.input_eda)
         corpus_word = self.eda2unigram(self.corpus_eda)
@@ -324,7 +323,8 @@ class Dep2Feature:
 
     def sim_example_jac(self, input_vector, corpus_vector, number=5):
         '''
-        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す
+        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(jaccard係数)
+        doc2vecのベクトルには対応していないので注意.
         '''
         input_word = self.eda2unigram(self.input_eda)
         corpus_word = self.eda2unigram(self.corpus_eda)
