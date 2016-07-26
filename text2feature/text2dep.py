@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import re
 
 class Text2dep:
 
@@ -132,21 +133,24 @@ class Text2dep:
 
     
     @classmethod
-    def load_eda(self, eda_file_path):
+    def load_eda(self, eda_file_path_list):
         '''
         edaの出力結果のファイルパスから、eda形式にする。
         '''
-        print("a")
-        text_full = []
-        fulls = []
-        for line in open(eda_file_path, 'r'):
-            line = line.strip()
-            if re.match('ID', line):
-                continue
-            if line == '':
-                text_full.append(fulls)
-                fulls = []
-                continue
-            fulls.append(line)
-        text_full.append(fulls)
-        return text_full
+        output, article, units = [], [], []
+        for eda_file_path in eda_file_path_list:
+            for unit in open(eda_file_path, 'r'):
+                unit = unit.strip()
+                if re.match('ID', unit):
+                    continue
+                if unit == '':
+                    article.append(units)
+                    units = []
+                    continue
+                units.append(unit)
+            output.append(article)
+            article = []
+        return output
+
+
+                
