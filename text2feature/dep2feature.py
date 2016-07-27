@@ -231,11 +231,11 @@ class Dep2Feature:
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-        self.count_array = CountVectorizer().fit_transform(text_mixed)  # tf計算用
+        self.count_array = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b').fit_transform(text_mixed)  # tf計算用
         if vectorizer == 'count':
-            self.vectorizer = CountVectorizer()
+            self.vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
         elif vectorizer == 'tfidf':
-            self.vectorizer = TfidfVectorizer()
+            self.vectorizer = TfidfVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
         else:
             print("Error:無効なVectorizerです")
             return 0
@@ -280,16 +280,19 @@ class Dep2Feature:
     def sim_example_cos(self, input_vector, corpus_vector, number=5):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(cos_simmirarity)
+        返り値はsim_vector
         '''
-        input_word = self.eda2unigram(self.input_eda)
-        corpus_word = self.eda2unigram(self.corpus_eda)
-        for input_one, input_sent in zip(input_vector, input_word):
-            print("input=", input_sent)
+        for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
                 corpus_one = np.squeeze(np.asarray(corpus_one))
                 sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
+        return sim_vector
+
+    def sim_print(self, input_word, corpus_word, sim_vector, number=5):
+        for input_sent in input_word:
+            print("input=", input_sent)
             for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
                 ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
                 print('配列番号:', np.nanargmax(sim_vector), 'No.', count, 'sim=', ans_sim[0])
@@ -298,6 +301,7 @@ class Dep2Feature:
                 sim_vector[np.nanargmax(sim_vector)] = -1
             print()
         return 0
+        
 
     def sim_example_jac(self, input_vector, corpus_vector, number=5):
         '''
