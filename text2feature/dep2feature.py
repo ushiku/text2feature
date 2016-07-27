@@ -58,7 +58,7 @@ class Dep2Feature:
     @classmethod
     def eda2trigram(self, eda):
         '''
-        eda形式からbigramを返す。[[私はは元気 元気. 肝 座 っている], [ . . . ]]
+        eda形式からtrigramを返す。
         '''
         text_word = []  # 各articleごとのunigram
         words = ''
@@ -132,7 +132,7 @@ class Dep2Feature:
     @classmethod
     def text2dep_trigram(self, text):
         '''
-        eda2dep_trigramのかかり受け部分
+        deptrigramを吐く. eda2dep_trigramの実行部分
         '''
         dep_trigram = ''
         heads, tails, words, poss = [], [], [], []
@@ -155,30 +155,30 @@ class Dep2Feature:
                 dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
         return dep_trigram
 
-    def vectorize_doc2vec(self, input_eda, model_path):
-        '''
-        input_listをdoc2vecを利用してvectorizeする
-        '''
-        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
-        input_vector = []
-        first_flag = 1
-        for text in text_full:
-            words = []
-            for line in text:
-                line = line.strip()
-                units = line.split(' ')
-                words.append(units[2])
-            if first_flag == 1:
-                input_vector = model.infer_vector(words)
-                first_flag = 0
-            else:
-                input_vector = np.vstack((input_vector, model.infer_vector(words)))
-        return input_vector
+#    def vectorize_doc2vec(self, input_eda, model_path):
+#        '''
+#        input_listをdoc2vecを利用してvectorizeする
+#        '''
+#        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
+#        input_vector = []
+#        first_flag = 1
+#        for text in text_full:
+#            words = []
+#            for line in text:
+#                line = line.strip()
+#                units = line.split(' ')
+#                words.append(units[2])
+#            if first_flag == 1:
+#                input_vector = model.infer_vector(words)
+#                first_flag = 0
+#            else:
+#                input_vector = np.vstack((input_vector, model.infer_vector(words)))
+#        return input_vector
 
-    def doc2vec(self, model_path):
-        input_eda = self.vectorize_doc2vec(self.input_eda, model_path)
-        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
-        return input_eda, corpus_eda
+#    def doc2vec(self, model_path):
+#        input_eda = self.vectorize_doc2vec(self.input_eda, model_path)
+#        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
+#        return input_eda, corpus_eda
 
     @classmethod
     def vectorize_doc2vec(self, input_eda, model_path):
