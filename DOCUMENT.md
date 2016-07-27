@@ -49,14 +49,16 @@ tf, idfのそれぞれの値に関しては、上記の関数で持って来れ�
 
 
 ```
-OBJ.sim_example_cos(input_vector, corpus_vector, number = 5)  # cos距離の例を表示する
+sim_vector_cos = OBJ.sim_example_cos(input_vector, corpus_vector)
+OBJ.sim_print(OBJ.eda2unigram(input_eda), OBJ.eda2unigram(corpus_eda), sim_vector_cos, number = 5)
 ```
-vectorizeを確かめるために、cos類似度を出す関数です。 
+vectorizeを確かめるために、cos類似度を出す関数です。
 input_vectorのそれぞれの記事に対して、corpus_vectorの中から類似度の高い上位5件を表示します。
 
 
 ```
-OBJ.sim_example_jac(input_vector, corpus_vector, number = 5)  # cos距離の例を表示する
+OBJ.sim_example_jac(input_vector, corpus_vector)  # jaccard係数
+OBJ.sim_example_sim(input_vector, corpus_vector)  # simpson係数
+OBJ.sim_example_dic(input_vector, corpus_vector)  # dice係数
 ```
-同様に、jaccard係数での類似度の高い5件を表示します。
 
