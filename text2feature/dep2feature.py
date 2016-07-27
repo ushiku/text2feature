@@ -180,28 +180,6 @@ class Dep2Feature:
 #        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
 #        return input_eda, corpus_eda
 
-    @classmethod
-    def vectorize_doc2vec(self, input_eda, model_path):
-        '''
-        input_listをdoc2vecを利用してvectorizeする
-        '''
-        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
-        input_vector = []
-        first_flag = 1
-        for article in input_eda:
-            words = []
-            for sentence in article:
-                for line in sentence:
-                    line = line.strip()
-                    units = line.split(' ')
-                    words.append(units[2])
-            if first_flag == 1:
-                input_vector = model.infer_vector(words)
-                first_flag = 0
-            else:
-                input_vector = np.vstack((input_vector, model.infer_vector(words)))
-        return input_vector
-
     def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
         '''
         input_listをcorpus_listを使ってvectorizeする
