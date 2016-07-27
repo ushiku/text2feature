@@ -311,7 +311,6 @@ class Dep2Feature:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
-#                corpus_one = np.squeeze(np.asarray(corpus_one))
                 input_word_number_list = np.where(input_one > 0)
                 corpus_word_number_list = np.where(corpus_one > 0)
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
@@ -326,3 +325,54 @@ class Dep2Feature:
             print()
         return 0
 
+    def sim_example_sim(self, input_vector, corpus_vector, number=5):
+        '''
+        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(simpson係数)
+        doc2vecのベクトルには対応していないので注意.
+        '''
+        input_word = self.eda2unigram(self.input_eda)
+        corpus_word = self.eda2unigram(self.corpus_eda)
+        for input_one, input_sent in zip(input_vector, input_word):
+            print("input=", input_sent)
+            sim_vector = []
+            sim_list = []
+            for corpus_one in corpus_vector:
+                input_word_number_list = np.where(input_one > 0)
+                corpus_word_number_list = np.where(corpus_one > 0)
+                common = np.intersect1d(input_word_number_list, corpus_word_number_list)
+                min_number = min(len(input_word_number_list[0]), len(corpus_word_number_list[0]))
+                sim_vector.append(len(common)/min_number) # jaccard係数(共通部分の要素数/全体部分の要素数)
+            for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
+                ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
+                print('配列番号:', np.nanargmax(sim_vector), 'No.', count, 'sim=', ans_sim[0])
+                print('output=', corpus_word[ans_sim[1]])
+                print()
+                sim_vector[np.nanargmax(sim_vector)] = -1
+            print()
+            return 0
+
+    def sim_example_dic(self, input_vector, corpus_vector, number=5):
+        '''
+        input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(dice係数)
+        doc2vecのベクトルには対応していないので注意.
+        '''
+        input_word = self.eda2unigram(self.input_eda)
+        corpus_word = self.eda2unigram(self.corpus_eda)
+        for input_one, input_sent in zip(input_vector, input_word):
+            print("input=", input_sent)
+            sim_vector = []
+            sim_list = []
+            for corpus_one in corpus_vector:
+                input_word_number_list = np.where(input_one > 0)
+                corpus_word_number_list = np.where(corpus_one > 0)
+                common = np.intersect1d(input_word_number_list, corpus_word_number_list)
+                sum_number = len(input_word_number_list[0]) + len(corpus_word_number_list[0])
+                sim_vector.append(2 * len(common)/sum_number) # jaccard係数(共通部分の要素数/全体部分の要素数)
+            for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
+                ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
+                print('配列番号:', np.nanargmax(sim_vector), 'No.', count, 'sim=', ans_sim[0])
+                print('output=', corpus_word[ans_sim[1]])
+                print()
+                sim_vector[np.nanargmax(sim_vector)] = -1
+            print()
+            return 0
