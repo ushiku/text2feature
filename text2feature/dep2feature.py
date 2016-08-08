@@ -318,7 +318,7 @@ class Dep2Feature:
                 sim_vector.append(len(common)/len(either)) # jaccard係数(共通部分の要素数/全体部分の要素数)
         return sim_vector
 
-    def sim_example_sim(self, input_vector, corpus_vector, number=5):
+    def sim_example_sim(self, input_vector, corpus_vector):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(simpson係数)
         doc2vecのベクトルには対応していないので注意.
@@ -334,7 +334,7 @@ class Dep2Feature:
                 sim_vector.append(len(common)/min_number) # simpson係数(共通部分の要素数/少ない要素数)
         return sim_vector
 
-    def sim_example_dic(self, input_vector, corpus_vector, number=5):
+    def sim_example_dic(self, input_vector, corpus_vector):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(dice係数)
         doc2vecのベクトルには対応していないので注意.
