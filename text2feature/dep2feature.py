@@ -241,9 +241,9 @@ class Dep2Feature:
             return 0
         array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
         input_vector = array[:input_length].todense()
-        input_vector = np.squeeze(np.asarray(input_vector))
+        input_vector = np.atleast_2d(np.squeeze(np.asarray(input_vector)))
         corpus_vector = array[input_length:].todense()
-        corpus_vector = np.squeeze(np.asarray(corpus_vector))
+        corpus_vector = np.atleast_2d(np.squeeze(np.asarray(corpus_vector)))
         return input_vector, corpus_vector
 
     def calculate_idf(self):
@@ -277,8 +277,9 @@ class Dep2Feature:
         tf_list = tf_list/total_word_count
         return tf_list
 
-    def sim_print(self, input_word, corpus_word, sim_vector, number=5):
-        for input_sent in input_word:
+    def sim_print(self, input_word, corpus_word, sim_matrix, number=5):
+        
+        for input_sent, sim_vector in zip(input_word, sim_matrix):
             print("input=", input_sent)
             for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
                 ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
@@ -294,19 +295,22 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(cos_simmirarity)
         返り値はsim_vector
         '''
+        sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
                 corpus_one = np.squeeze(np.asarray(corpus_one))
                 sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
-        return sim_vector
+            sim_matrix.append(sim_vector)
+        return sim_matrix
 
     def sim_example_jac(self, input_vector, corpus_vector):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(jaccard係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
@@ -316,13 +320,15 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 either = np.union1d(input_word_number_list[0], corpus_word_number_list[0])
                 sim_vector.append(len(common)/len(either)) # jaccard係数(共通部分の要素数/全体部分の要素数)
-        return sim_vector
+            sim_matrix.append(sim_vector)
+        return sim_matrix
 
     def sim_example_sim(self, input_vector, corpus_vector):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(simpson係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
@@ -332,13 +338,15 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 min_number = min(len(input_word_number_list[0]), len(corpus_word_number_list[0]))
                 sim_vector.append(len(common)/min_number) # simpson係数(共通部分の要素数/少ない要素数)
-        return sim_vector
+            sim_matrix.append(sim_vector)
+        return sim_matrix
 
     def sim_example_dic(self, input_vector, corpus_vector):
         '''
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(dice係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
@@ -348,4 +356,5 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 sum_number = len(input_word_number_list[0]) + len(corpus_word_number_list[0])
                 sim_vector.append(2 * len(common)/sum_number) # dice係数(2 * 共通部分の要素数/要素数の和)
-        return sim_vector
+            sim_matrix.append(sim_vector)
+        return sim_matrix
