@@ -30,12 +30,14 @@ input_eda = Text2dep.load_eda(eda_file_path_list)
 EDAをCUI上で実行した結果を保存している場合、load_edaを使って読み込むことも可能です。
 
 ```
-OBJ = Dep2Feature(input_eda, corpus_eda)  # インスタンス作成
-input_vector, corpus_vector = OBJ.vectorize(unigram = 1, bigram = 0, trigram = 0, dep_bigram = 0, dep_trigram = 0, vectorizer = 'tfidf')  # Vecotrize
+OBJ = Dep2Feature([input_eda, corpus_eda], bigram = 1, vectorizer=CountVectorizer())  # インスタンス作成
+
+vector_list = OBJ.vectorize([input_eda, corpus_vector])
+
 ```
-インスタンスを作成しますが、引数として、構文解析済みの入力のデータと、大規模なコーパスのデータを与えます。
-このインスタンスで、vectorize関数を実行することで、それぞれをvectorにします。
-unigram~dep_trigramに関しては、0 or 1の値、vectorizerに関しては,'tfidf' or 'count'を許容します。 unigram, bigram、trigramに関しては、連続する、1単語、2単語、3単語をそれぞれ素性にします。(なお、1単語に関しては、助詞などの語は捨てています)
+インスタンスを作成しますが、引数として、辞書を作成するためのcorpusのリストを与えます。
+このインスタンスで、vectorizeメソッドを実行することで、引数のリストをそれぞれベクトルにします.
+unigram~dep_trigramに関しては、0 or 1の値、vectorizerに関しては,'CountVectorizer(), TfIdfVectorizer()'を許容します。(importしておいてください) unigram, bigram、trigramに関しては、連続する、1単語、2単語、3単語をそれぞれ素性にします。(なお、1単語に関しては、助詞などの語は捨てています)
 dep_bigramは、構文解析による結果を利用し、かかり元とかかり先のつながりを連続する単語として素性にしています。dep_trigram に関しても、同様でかかり先のさらにかかり先までを含めて、連続する3単語と見て素性にしています。
 これらの素性はそれぞれ、同時に利用することができます。
 
