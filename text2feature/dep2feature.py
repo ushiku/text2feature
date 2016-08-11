@@ -12,7 +12,7 @@ class Dep2Feature:
     '''
     かかり受けから素性を生成する。
     '''
-    def __init__(self, input_eda, corpus_eda):                  # コンストラクタ
+    def __init__(self, input_eda, corpus_eda)                  # コンストラクタ
         self.input_eda = input_eda
         self.corpus_eda = corpus_eda
         self.vectorizer = ""
@@ -180,7 +180,7 @@ class Dep2Feature:
 #        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
 #        return input_eda, corpus_eda
 
-    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count'):
+    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count', token_pattern='(?u)\b\w\w+\b'):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
@@ -231,11 +231,11 @@ class Dep2Feature:
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-        self.count_array = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b').fit_transform(text_mixed)  # tf計算用
+        self.count_array = CountVectorizer(token_pattern=toke_pattern).fit_transform(text_mixed)  # tf計算用
         if vectorizer == 'count':
-            self.vectorizer = CountVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
+            self.vectorizer = CountVectorizer(token_pattern=token_pattern)
         elif vectorizer == 'tfidf':
-            self.vectorizer = TfidfVectorizer(token_pattern=u'(?u)\\b\\w+\\b')
+            self.vectorizer = TfidfVectorizer(token_pattern=token_pattern)  # token_pattern=u'(?u)\\b\\w+\\b'
         else:
             print("Error:無効なVectorizerです")
             return 0
@@ -285,6 +285,9 @@ class Dep2Feature:
                 ans_sim = [np.nanmax(sim_vector), np.nanargmax(sim_vector)]
                 print('配列番号:', np.nanargmax(sim_vector), 'No.', count, 'sim=', ans_sim[0])
                 print('output=', corpus_word[ans_sim[1]])
+                src_set = set(input_sent.split())
+                tag_set = set(corpus_word[ans_sim[1]].split())
+                print('共通部分', list(src_set & tag_set))
                 print()
                 sim_vector[np.nanargmax(sim_vector)] = -1
             print()
