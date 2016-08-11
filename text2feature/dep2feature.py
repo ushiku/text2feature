@@ -19,7 +19,7 @@ class Dep2Feature:
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
     @classmethod
-    def _eda2unigram(self, eda):
+    def eda2unigram(self, eda):
         '''
         eda形式からunigramを返す。[[私 は 元気. 肝 座っている], [ . . . ]]
         '''
@@ -185,16 +185,16 @@ class Dep2Feature:
         input_listをcorpus_listを使ってvectorizeする
         '''
         words = [0]
-        words.extend(self._eda2unigram(self.input_eda))
-        words.extend(self._eda2unigram(self.corpus_eda))
+        words.extend(self.eda2unigram(self.input_eda))
+        words.extend(self.eda2unigram(self.corpus_eda))
         words.pop(0)
         input_length = len(self.input_eda)
         corpus_length = len(self.corpus_eda)
         text_list = []
         if unigram == 1:
             text = [0]
-            text.extend(self._eda2unigram(self.input_eda))
-            text.extend(self._eda2unigram(self.corpus_eda))
+            text.extend(self.eda2unigram(self.input_eda))
+            text.extend(self.eda2unigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if bigram == 1:
