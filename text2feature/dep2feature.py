@@ -180,7 +180,7 @@ class Dep2Feature:
 #        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
 #        return input_eda, corpus_eda
 
-    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count', token_pattern='(?u)\b\w\w+\b'):
+    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count', token_pattern = u'(?u)\\b\\w\\w+\\b'):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
@@ -231,7 +231,7 @@ class Dep2Feature:
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-        self.count_array = CountVectorizer(token_pattern=toke_pattern).fit_transform(text_mixed)  # tf計算用
+        self.count_array = CountVectorizer(token_pattern=token_pattern).fit_transform(text_mixed)  # tf計算用
         if vectorizer == 'count':
             self.vectorizer = CountVectorizer(token_pattern=token_pattern)
         elif vectorizer == 'tfidf':
