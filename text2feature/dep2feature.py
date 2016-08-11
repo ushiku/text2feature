@@ -19,7 +19,7 @@ class Dep2Feature:
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
     @classmethod
-    def eda2unigram(self, eda):
+    def _eda2unigram(self, eda):
         '''
         eda形式からunigramを返す。[[私 は 元気. 肝 座っている], [ . . . ]]
         '''
@@ -35,7 +35,7 @@ class Dep2Feature:
         return text_word
 
     @classmethod
-    def eda2bigram(self, eda):
+    def _eda2bigram(self, eda):
         '''
         eda形式からbigramを返す。[[私はは元気 元気. 肝 座 っている], [ . . . ]]
         '''
@@ -56,7 +56,7 @@ class Dep2Feature:
         return text_word
 
     @classmethod
-    def eda2trigram(self, eda):
+    def _eda2trigram(self, eda):
         '''
         eda形式からtrigramを返す。
         '''
@@ -79,7 +79,7 @@ class Dep2Feature:
         return text_word
 
     @classmethod
-    def eda2dep_bigram(self, eda):
+    def _eda2dep_bigram(self, eda):
         '''
         かかり受けのbigramモデル. eda2wordにたいして、depのbigramをとる
         '''
@@ -88,12 +88,12 @@ class Dep2Feature:
             for sentence in article:
                 if sentence == []:
                     continue
-                dep_bigram = self.text2dep_bigram(sentence)
+                dep_bigram = self._text2dep_bigram(sentence)
                 text_word.append(dep_bigram.strip())
         return text_word
 
     @classmethod
-    def text2dep_bigram(self, text):
+    def _text2dep_bigram(self, text):
         '''
         depbigramを吐く. eda2dep_bigramの実行部分
         '''
@@ -116,7 +116,7 @@ class Dep2Feature:
         return dep_bigram
 
     @classmethod
-    def eda2dep_trigram(self, eda):
+    def _eda2dep_trigram(self, eda):
         '''
         depのtrigramをとる
         '''
@@ -125,12 +125,12 @@ class Dep2Feature:
             for sentence in article:
                 if sentence == []:
                     continue
-                dep_bigram = self.text2dep_trigram(sentence)
+                dep_bigram = self._text2dep_trigram(sentence)
                 text_word.append(dep_bigram.strip())
         return text_word
 
     @classmethod
-    def text2dep_trigram(self, text):
+    def _text2dep_trigram(self, text):
         '''
         deptrigramを吐く. eda2dep_trigramの実行部分
         '''
@@ -185,40 +185,40 @@ class Dep2Feature:
         input_listをcorpus_listを使ってvectorizeする
         '''
         words = [0]
-        words.extend(self.eda2unigram(self.input_eda))
-        words.extend(self.eda2unigram(self.corpus_eda))
+        words.extend(self._eda2unigram(self.input_eda))
+        words.extend(self._eda2unigram(self.corpus_eda))
         words.pop(0)
         input_length = len(self.input_eda)
         corpus_length = len(self.corpus_eda)
         text_list = []
         if unigram == 1:
             text = [0]
-            text.extend(self.eda2unigram(self.input_eda))
-            text.extend(self.eda2unigram(self.corpus_eda))
+            text.extend(self._eda2unigram(self.input_eda))
+            text.extend(self._eda2unigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if bigram == 1:
             text = [0]
-            text.extend(self.eda2bigram(self.input_eda))
-            text.extend(self.eda2bigram(self.corpus_eda))
+            text.extend(self._eda2bigram(self.input_eda))
+            text.extend(self._eda2bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if trigram == 1:
             text = [0]
-            text.extend(self.eda2trigram(self.input_eda))
-            text.extend(self.eda2trigram(self.corpus_eda))
+            text.extend(self._eda2trigram(self.input_eda))
+            text.extend(self._eda2trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_bigram == 1:
             text = [0]
-            text.extend(self.eda2dep_bigram(self.input_eda))
-            text.extend(self.eda2dep_bigram(self.corpus_eda))
+            text.extend(self._eda2dep_bigram(self.input_eda))
+            text.extend(self._eda2dep_bigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if dep_trigram == 1:
             text = [0]
-            text.extend(self.eda2dep_trigram(self.input_eda))
-            text.extend(self.eda2dep_trigram(self.corpus_eda))
+            text.extend(self._eda2dep_trigram(self.input_eda))
+            text.extend(self._eda2dep_trigram(self.corpus_eda))
             text.pop(0)
             text_list.append(text)
         if text_list == []:
