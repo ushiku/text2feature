@@ -12,7 +12,7 @@ class Dep2Feature:
     '''
     かかり受けから素性を生成する。
     '''
-    def __init__(self, input_eda, corpus_eda)                  # コンストラクタ
+    def __init__(self, input_eda, corpus_eda):                  # コンストラクタ
         self.input_eda = input_eda
         self.corpus_eda = corpus_eda
         self.vectorizer = ""
