@@ -180,7 +180,7 @@ class Dep2Feature:
 #        corpus_eda = self.vectorize_doc2vec(self.corpus_eda, model_path)
 #        return input_eda, corpus_eda
 
-    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer='count', token_pattern = u'(?u)\\b\\w\\w+\\b'):
+    def vectorize(self, unigram=1, bigram=0, trigram=0, dep_bigram=0, dep_trigram=0, vectorizer=CountVectorizer()):
         '''
         input_listをcorpus_listを使ってvectorizeする
         '''
@@ -225,20 +225,14 @@ class Dep2Feature:
             print('Error:素性が選択されていません')
             return 0
         text_mixed = []
+        self.vectorizer = vectorizer
         for text in text_list:
             if text_mixed == []:
                 text_mixed = text
             else:
                 for line_text_mixed, line_text in zip(text_mixed, text):
                     text_mixed[text_mixed.index(line_text_mixed)] = line_text_mixed + ' ' + line_text
-        self.count_array = CountVectorizer(token_pattern=token_pattern).fit_transform(text_mixed)  # tf計算用
-        if vectorizer == 'count':
-            self.vectorizer = CountVectorizer(token_pattern=token_pattern)
-        elif vectorizer == 'tfidf':
-            self.vectorizer = TfidfVectorizer(token_pattern=token_pattern)  # token_pattern=u'(?u)\\b\\w+\\b'
-        else:
-            print("Error:無効なVectorizerです")
-            return 0
+        self.count_array = self.vectorizer.fit_transform(text_mixed)  # tf計算用
         array = self.vectorizer.fit_transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
         input_vector = array[:input_length].todense()
         input_vector = np.atleast_2d(np.squeeze(np.asarray(input_vector)))
