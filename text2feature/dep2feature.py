@@ -298,6 +298,9 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(cos_simmirarity)
         返り値はsim_vector
         '''
+        if not input_vector.size == corpus_vector.size:
+            print('Error:次元が違います')
+            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
@@ -313,6 +316,9 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(jaccard係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        if not input_vector.size == corpus_vector.size:
+            print('Error:次元が違います')
+            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
@@ -331,6 +337,9 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(simpson係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        if not input_vector.size == corpus_vector.size:
+            print('Error:次元が違います')
+            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
@@ -349,6 +358,9 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(dice係数)
         doc2vecのベクトルには対応していないので注意.
         '''
+        if not input_vector.size == corpus_vector.size:
+            print('Error:次元が違います')
+            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
