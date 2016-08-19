@@ -125,7 +125,7 @@ class Text2dep:
                     pass
             new_output.append(new_article)
             new_article = []
-        return new_output, output_eda_list
+        return new_output
 
     # KyTeaの出力をEDAに渡しただけ
     def t2f(self, input_f, kytea_model=None, eda_model=''):
