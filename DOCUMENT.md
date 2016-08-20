@@ -2,7 +2,7 @@
 
 ```
 input_list = ['corpus/input/1.txt', 'corpus/input/2.txt']
-input_eda, input_eda_raw = Text2dep().t2f(input_list,  kytea_model='model/model.bin', eda_model='model/bccwj-20140727.etm')
+input_eda = Text2dep().t2f(input_list,  kytea_model='model/model.bin', eda_model='model/bccwj-20140727.etm')
 
 f = open("model/eda.dump", "wb")
 pickle.dump(input_eda, f)            # ファイルに保存
@@ -31,7 +31,6 @@ EDAをCUI上で実行した結果を保存している場合、load_edaを使っ
 
 ```
 OBJ = Dep2Feature([input_eda, corpus_eda], bigram = 1, vectorizer=CountVectorizer())  # インスタンス作成
-
 vector_list = OBJ.vectorize([input_eda, corpus_vector])
 
 ```
