@@ -17,7 +17,7 @@ class Dep2Feature:
         self.trigram = trigram
         self.dep_bigram = dep_bigram
         self.dep_trigram = dep_trigram
-        self.vectorizer = CountVectorizer()
+        self.vectorizer = vectorizer
         self.vectorize(eda_list, type='fit')  # fitさせる
 
 # unigram, bigram, trigram, depbigram, deptrigramの計5つ
