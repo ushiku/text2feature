@@ -2,7 +2,6 @@ import numpy as np
 import re
 import fileinput
 import math
-import gensim
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -259,7 +258,6 @@ class Dep2Feature:
         return tf_list
 
     def sim_print(self, input_word, corpus_word, sim_matrix, number=5):
-        
         for input_sent, sim_vector in zip(input_word, sim_matrix):
             print("input=", input_sent)
             for count in range(0, number):  # 上位n個を出す(n未満の配列には対応しないので注意)
@@ -280,7 +278,7 @@ class Dep2Feature:
         返り値はsim_vector
         '''
         if not input_vector.size == corpus_vector.size:
-            print('Error:次元が違います')
+            print('Error:次元が違います:input_vector_size=', input_vector.size, 'corpus_vector_size=', corpus_vector.size)
             return 0
         sim_matrix = []
         for input_one in input_vector:
