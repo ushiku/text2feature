@@ -290,6 +290,8 @@ class Dep2Feature:
             for corpus_one in corpus_vector:
                 corpus_one = np.squeeze(np.asarray(corpus_one))
                 sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
+            np.set_printoptions(precision=8)
+            sim_vector = np.nan_to_num(sim_vector)
             sim_matrix.append(sim_vector)
         return sim_matrix
 
@@ -311,6 +313,8 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 either = np.union1d(input_word_number_list[0], corpus_word_number_list[0])
                 sim_vector.append(len(common)/len(either)) # jaccard係数(共通部分の要素数/全体部分の要素数)
+            np.set_printoptions(precision=8)
+            sim_vector = np.nan_to_num(sim_vector)
             sim_matrix.append(sim_vector)
         return sim_matrix
 
@@ -332,6 +336,8 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 min_number = min(len(input_word_number_list[0]), len(corpus_word_number_list[0]))
                 sim_vector.append(len(common)/min_number) # simpson係数(共通部分の要素数/少ない要素数)
+            np.set_printoptions(precision=8)
+            sim_vector = np.nan_to_num(sim_vector)
             sim_matrix.append(sim_vector)
         return sim_matrix
 
@@ -353,5 +359,7 @@ class Dep2Feature:
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
                 sum_number = len(input_word_number_list[0]) + len(corpus_word_number_list[0])
                 sim_vector.append(2 * len(common)/sum_number) # dice係数(2 * 共通部分の要素数/要素数の和)
+            np.set_printoptions(precision=8)
+            sim_vector = np.nan_to_num(sim_vector)
             sim_matrix.append(sim_vector)
         return sim_matrix
