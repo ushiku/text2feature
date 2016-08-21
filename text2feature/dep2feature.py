@@ -224,7 +224,7 @@ class Dep2Feature:
             vector = array[preposition:length + preposition].todense()
             vector = np.atleast_2d(np.squeeze(np.asarray(vector)))
             np.set_printoptions(precision=8)
-            number = np.nan_to_num(number)
+            vector = np.nan_to_num(vector)
             vector_list.append(vector)
             preposition = length + preposition
         return vector_list
