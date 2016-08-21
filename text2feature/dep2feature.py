@@ -215,6 +215,7 @@ class Dep2Feature:
         if type == 'fit':
             self.vectorizer.fit(text_mixed)  # 辞書作成
             return 0
+
         self.count_array = self.vectorizer.transform(text_mixed)  # tf計算用
         array = self.vectorizer.transform(text_mixed)   # インスタンス変数にアクセスはインスタンスメソッドのみ
         preposition = 0
@@ -222,6 +223,8 @@ class Dep2Feature:
         for length in length_list:
             vector = array[preposition:length + preposition].todense()
             vector = np.atleast_2d(np.squeeze(np.asarray(vector)))
+            np.set_printoptions(precision=8)
+            number = np.nan_to_num(number)
             vector_list.append(vector)
             preposition = length + preposition
         return vector_list
