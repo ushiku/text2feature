@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import re
+import shutil
 
 class Text2dep:
 
@@ -8,21 +9,16 @@ class Text2dep:
     def __init__(self):
         import subprocess
         import sys
-
         #kytea,edaのインストールしているかの確認 
         #以下の2つのコマンドだと終了ステータスが0ではないのでエラーが返ってくる
         #終了ステータス1のときは成功としたが、環境によって異なるのかは分からん
-        try:
-            output_test = subprocess.check_output('kytea --help', shell=True)
-        except subprocess.CalledProcessError as e:
-            returncode =  e.returncode
-            if returncode == 1:
-                pass
-            else:
-                print ('"kytea --help"のコマンドが使えません')
-                print ('正しくインストールされているか確認してください')
-                print ('http://www.phontron.com/kytea/index-ja.html')
-                sys.exit(1)
+        if shutil.which('kytea'):
+            pass
+        else:
+            print ('"kytea"のコマンドが使えません')
+            print ('正しくインストールされているか確認してください')
+            print ('http://www.phontron.com/kytea/index-ja.html')
+            sys.exit(1)
 
         try:
             output_test = subprocess.check_output('eda', shell=True)
