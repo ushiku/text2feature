@@ -157,8 +157,7 @@ class Dep2Feature:
             else:
                 dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
         return dep_trigram
-
-
+        
     def vectorize(self, eda_list, type='transform'):
         '''
         input_listをcorpus_listを使ってvectorizeする
@@ -280,14 +279,14 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(cos_simmirarity)
         返り値はsim_vector
         '''
-        if not input_vector.size == corpus_vector.size:
-            print('Error:次元が違います:input_vector_size=', input_vector.size, 'corpus_vector_size=', corpus_vector.size)
-            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
+                if not input_one.size == corpus_one.size:
+                    print('Error:次元が違います:input_vector=', input_one.size, 'corpus_vector=', corpus_one.size)
+                    return 0
                 corpus_one = np.squeeze(np.asarray(corpus_one))
                 sim_vector.append(1-cosine(input_one, corpus_one))  # ここcosineが1-cosine距離で定式している?
             np.set_printoptions(precision=8)
@@ -300,14 +299,14 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(jaccard係数)
         doc2vecのベクトルには対応していないので注意.
         '''
-        if not input_vector.size == corpus_vector.size:
-            print('Error:次元が違います')
-            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
+                if not input_one.size == corpus_one.size:
+                    print('Error:次元が違います:input_vector=', input_one.size, 'corpus_vector=', corpus_one.size)
+                    return 0
                 input_word_number_list = np.where(input_one > 0)
                 corpus_word_number_list = np.where(corpus_one > 0)
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
@@ -323,14 +322,14 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(simpson係数)
         doc2vecのベクトルには対応していないので注意.
         '''
-        if not input_vector.size == corpus_vector.size:
-            print('Error:次元が違います')
-            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
+                if not input_one.size == corpus_one.size:
+                    print('Error:次元が違います:input_vector=', input_one.size, 'corpus_vector=', corpus_one.size)
+                    return 0
                 input_word_number_list = np.where(input_one > 0)
                 corpus_word_number_list = np.where(corpus_one > 0)
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
@@ -346,14 +345,14 @@ class Dep2Feature:
         input_vectorをもらって、corpus_vectorとの類似度の大きいものを返す(dice係数)
         doc2vecのベクトルには対応していないので注意.
         '''
-        if not input_vector.size == corpus_vector.size:
-            print('Error:次元が違います')
-            return 0
         sim_matrix = []
         for input_one in input_vector:
             sim_vector = []
             sim_list = []
             for corpus_one in corpus_vector:
+                if not input_one.size == corpus_one.size:
+                    print('Error:次元が違います:input_vector=', input_one.size, 'corpus_vector=', corpus_one.size)
+                    return 0
                 input_word_number_list = np.where(input_one > 0)
                 corpus_word_number_list = np.where(corpus_one > 0)
                 common = np.intersect1d(input_word_number_list, corpus_word_number_list)
