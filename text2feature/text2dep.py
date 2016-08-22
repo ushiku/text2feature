@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 import re
 import shutil
+import subprocess
 
 class Text2dep:
 
     #初期化とKyTea,EDAのコマンドがインストールされているか確認
     def __init__(self):
-        import subprocess
-        import sys
         #kytea,edaのインストールしているかの確認 
         #以下の2つのコマンドだと終了ステータスが0ではないのでエラーが返ってくる
         #終了ステータス1のときは成功としたが、環境によって異なるのかは分からん
@@ -31,10 +31,23 @@ class Text2dep:
                 print ('正しくインストールされているか確認してください')
                 print ('http://www.ar.media.kyoto-u.ac.jp/tool/EDA/')
 
+    #文字列用
+    def kytea_str(self, input_str, kytea_model=None):
+
+        #コマンドの定義、モデルを何にするかを決定
+        if kytea_model is None:
+            cmd_kytea = 'kytea'
+        else:
+            cmd_kytea = 'kytea -model ' + kytea_model
+        input_str = input_str + '\n'
+        process_kytea = subprocess.Popen(cmd_kytea.strip().split(" "), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        output_kytea = process_kytea.communicate(input_str.encode('utf-8'))[0]
+        kytea_line_list = output_kytea.decode('utf-8').split("\n")
+        return kytea_line_list[0]
+
+
     #KyTeaコマンド実行部分
     def kytea(self, input_f, kytea_model=None, pipe_eda=False):        
-        import subprocess
-        import sys
 
         #コマンドの定義、モデルを何にするかを決定
         if kytea_model is None:
@@ -48,11 +61,9 @@ class Text2dep:
             input = input + open(file_iter, 'r').read()
             input = input + 'EOF\n'
 
-
         #kytea実行部分
         process_kytea = subprocess.Popen(cmd_kytea.strip().split(" "), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         output_kytea = process_kytea.communicate(input.encode('utf-8'))[0]
-
         #False ならEOFごとに区切って、UTF-8にしてリスト型で返す
         #Ture ならEDAに渡すためにそのまま返す
         if pipe_eda == False:
@@ -68,7 +79,6 @@ class Text2dep:
 
             output_kytea_list.pop()
             return output_kytea_list
-
         else:
             return output_kytea
 
