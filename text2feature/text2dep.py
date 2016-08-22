@@ -93,10 +93,11 @@ class Text2dep:
         #eda実行部分
         process_eda = subprocess.Popen(cmd_eda.strip().split(" "), stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         if pipe_kytea == False:
-            input = ""
-            for file_iter in input_kytea:
-                input = input + open(file_iter, 'r').read()
-                input = input + 'EOF/名詞/いーおーえふ\n'
+            input = ''
+            for line in input_kytea:
+                input += line
+                input += 'EOF/名詞/いーおーえふ\n'
+                
             output_eda = process_eda.communicate(input.encode('utf-8'))[0]
         else:
             output_eda = process_eda.communicate(input_kytea)[0]
