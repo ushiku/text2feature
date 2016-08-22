@@ -138,6 +138,29 @@ class Text2dep:
     def t2f(self, input_f, kytea_model=None, eda_model=''):
         return self.eda(self.kytea(input_f, kytea_model, pipe_eda=True), eda_model, pipe_kytea=True)
 
+    # kyTeaの出力をEDA形式にしている(注意: かかり受け解析をしているわけではない)
+    def kytea2eda(self, kytea):
+        new_articles = []
+        for article in kytea:
+            sentences = article.strip().split('\n')
+            new_sentences = []
+            for sentence in sentences:
+                new_units = []
+                units = sentence.split(' ')
+                count = 0
+                for unit in units:
+                    word_pos_yomi = unit.split('/')
+                    count += 1
+                    if count < len(units):
+                        new_unit = str(count)+' '+str(count+1)+' '+word_pos_yomi[0]+' '+word_pos_yomi[1]+' '+str(0)
+                    else:
+                        new_unit = str(count)+' '+str(-1)+' '+word_pos_yomi[0]+' '+word_pos_yomi[1]+' '+str(0)
+                    new_units.append(new_unit)
+                new_sentences.append(new_units)
+            new_articles.append(new_sentences)
+        return new_articles
+        
+
     
     @classmethod
     def load_eda(self, eda_file_path_list):
