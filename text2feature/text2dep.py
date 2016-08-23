@@ -159,7 +159,6 @@ class Text2dep:
                 new_sentences.append(new_units)
             new_articles.append(new_sentences)
         return new_articles
-        
 
     
     @classmethod
