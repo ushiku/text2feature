@@ -2,6 +2,7 @@ import numpy as np
 import re
 import fileinput
 import math
+import gensim
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -157,6 +158,33 @@ class Dep2Feature:
             else:
                 dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
         return dep_trigram
+
+
+    def _vectorize_doc2vec(self, input_eda, model_path):
+        '''
+        input_edaをdoc2vecを利用してvectorizeする
+        '''
+        model = gensim.models.doc2vec.Doc2Vec.load(model_path)
+        first_flag = 1
+        articles = self.eda2unigram(input_eda)
+        for article in articles:
+            words = article.split(' ')
+            if first_flag == 1:
+                input_vector = model.infer_vector(words)
+                first_flag = 0
+            else:
+                input_vector = np.vstack((input_vector, model.infer_vector(words)))
+                first_flag = 2
+        return np.atleast_2d(input_vector)
+    
+
+    def vectorize_doc2vec(self, eda_list, model_path):
+        eda_vectors = []
+        for eda in eda_list:
+            eda_vector = self._vectorize_doc2vec(eda, model_path)
+            eda_vectors.append(eda_vector)
+        return eda_vectors
+
         
     def vectorize(self, eda_list, type='transform'):
         '''
