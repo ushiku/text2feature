@@ -77,7 +77,7 @@ class Dep2Feature:
                     head1 = head2
                     head2 = units[2]
                 words = words + ' ' + head1 + '_' + head2 + '_' + tail1
-                words = words + ' ' + head1 + '_' + head2 + '_' + units[2]
+                words = words + ' ' + head2 + '_' + tail1 + '_' + tail2
                 head1, head2 = 'HEAD', 'HEAD'
             text_word.append(words.strip())
             words = ''
@@ -112,12 +112,12 @@ class Dep2Feature:
             tails.append(int(units[1]))
             words.append(units[2])
             poss.append(units[3])
-        dep_bigram = 'HEAD' + '-' +words[0]
+        dep_bigram = 'HEAD' + '__' +words[0]
         for tail, word in zip(tails, words):
             if tail == -1 or 0:
-                dep_bigram = dep_bigram + ' '  + word + '-' + 'TAIL'
+                dep_bigram = dep_bigram + ' '  + word + '__' + 'TAIL'
             else:
-                dep_bigram = dep_bigram + ' ' + word + '-' + words[tail - 1]
+                dep_bigram = dep_bigram + ' ' + word + '__' + words[tail - 1]
         return dep_bigram
 
     @classmethod
@@ -158,7 +158,6 @@ class Dep2Feature:
                 dep_trigram = dep_trigram + ' ' + word + '__' + words[tail-1] + '__' + 'TAIL'  # 2個後ろがない
             else:
                 dep_trigram = dep_trigram + ' ' + word + '__' + words[tail-1] + '__' + words[tails[tail-1]-1]  # 2個後ろまで
-
         for head, word in zip(heads, words):
             if tails.count(head) >= 2:  # 二つ以上がこのwordにかかっている場合
                 indexes = [i for i, x in enumerate(tails) if x == head]
