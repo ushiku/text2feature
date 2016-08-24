@@ -163,7 +163,8 @@ class Dep2Feature:
             if tails.count(head) >= 2:  # 二つ以上がこのwordにかかっている場合
                 indexes = [i for i, x in enumerate(tails) if x == head]
                 for first_second in list(itertools.combinations(indexes, 2)):  # wordにかかっているやつから順序無視で二つとり出す。
-                    dep_trigram = dep_trigram + ' ' + words[first_second[0]-1] + '___' + words[first_second[1]-1] + '__' + word
+                    print(first_second, words[first_second[0]], words[first_second[1]], word)
+                    dep_trigram = dep_trigram + ' ' + words[first_second[0]] + '_and_' + words[first_second[1]] + '__' + word
         return dep_trigram
 
     def _vectorize_doc2vec(self, input_eda, model_path):
