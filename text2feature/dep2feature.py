@@ -51,9 +51,9 @@ class Dep2Feature:
             for sentence in article:
                 for line in sentence:
                     units = line.strip().split(' ')
-                    words = words + ' ' + head + units[2]
+                    words = words + ' ' + head + '_' + units[2]
                     head = units[2]
-                words = words + ' ' + units[2] + tail
+                words = words + ' ' + units[2] + '_' + tail
                 head = '^'
             text_word.append(words.strip())
             words = ''
@@ -72,11 +72,11 @@ class Dep2Feature:
             for sentence in article:
                 for line in sentence:
                     units = line.strip().split(' ')
-                    words = words + ' ' + head1 + head2 + units[2]
+                    words = words + ' ' + head1 + '_' + head2 + '_' + units[2]
                     head1 = head2
                     head2 = units[2]
-                words = words + ' ' + head1 + head2 + tail1
-                words = words + ' ' + head1 + head2 + units[2]
+                words = words + ' ' + head1 + '_' + head2 + '_' + tail1
+                words = words + ' ' + head1 + '_' + head2 + '_' + units[2]
                 head1, head2 = '^', '^'
             text_word.append(words.strip())
             words = ''
