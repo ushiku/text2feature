@@ -1,6 +1,7 @@
 import numpy as np
 import re
 import fileinput
+import itertools
 import math
 import gensim
 from scipy.spatial.distance import cosine
@@ -45,8 +46,8 @@ class Dep2Feature:
         '''
         text_word = []  # 各articleごとのunigram
         words = ''
-        head = '^'
-        tail = '$'
+        head = 'HEAD'
+        tail = 'TAIL'
         for article in eda:
             for sentence in article:
                 for line in sentence:
@@ -54,7 +55,7 @@ class Dep2Feature:
                     words = words + ' ' + head + '_' + units[2]
                     head = units[2]
                 words = words + ' ' + units[2] + '_' + tail
-                head = '^'
+                head = 'HEAD'
             text_word.append(words.strip())
             words = ''
         return text_word
@@ -66,8 +67,8 @@ class Dep2Feature:
         '''
         text_word = []  # 各articleごとのunigram
         words = ''
-        head1, head2 = '^', '^'
-        tail1, tail2 = '$', '$'
+        head1, head2 = 'HEAD', 'HEAD'
+        tail1, tail2 = 'TAIL', 'TAIL'
         for article in eda:
             for sentence in article:
                 for line in sentence:
@@ -77,7 +78,7 @@ class Dep2Feature:
                     head2 = units[2]
                 words = words + ' ' + head1 + '_' + head2 + '_' + tail1
                 words = words + ' ' + head1 + '_' + head2 + '_' + units[2]
-                head1, head2 = '^', '^'
+                head1, head2 = 'HEAD', 'HEAD'
             text_word.append(words.strip())
             words = ''
         return text_word
@@ -111,12 +112,12 @@ class Dep2Feature:
             tails.append(int(units[1]))
             words.append(units[2])
             poss.append(units[3])
-        dep_bigram = '^' + words[0]
+        dep_bigram = 'HEAD' + '-' +words[0]
         for tail, word in zip(tails, words):
             if tail == -1 or 0:
-                dep_bigram = dep_bigram + ' ' + word + '$'
+                dep_bigram = dep_bigram + ' '  + word + '-' + 'TAIL'
             else:
-                dep_bigram = dep_bigram + ' ' + word + words[tail - 1]
+                dep_bigram = dep_bigram + ' ' + word + '-' + words[tail - 1]
         return dep_bigram
 
     @classmethod
@@ -148,17 +149,22 @@ class Dep2Feature:
             words.append(units[2])
             poss.append(units[3])
         if len(words) >= 2:  # 一つのときはこの動作を行わない
-            dep_trigram = '^' + words[0] + words[1]
-        dep_bigram = dep_trigram + ' ' + '^' + '^' + words[0]
+            dep_trigram = 'HEAD' + '__' + words[0] + '__' + words[1]
+        dep_trigram = dep_trigram + ' ' + 'HEAD' + '__' + 'HEAD' + '__' + words[0]
         for tail, word in zip(tails, words):
             if tail == -1 or 0:
-                dep_trigram = dep_trigram + ' ' + word + '$' + '$'  # 1個後ろもない
+                dep_trigram = dep_trigram + ' ' + word + '__' + 'TAIL' + '__' + 'TAIL'  # 1個後ろもない
             elif tails[tail-1] == -1 or 0:
-                dep_trigram = dep_trigram + ' ' + word + words[tail-1] + '$'  # 2個後ろがない
+                dep_trigram = dep_trigram + ' ' + word + '__' + words[tail-1] + '__' + 'TAIL'  # 2個後ろがない
             else:
-                dep_trigram = dep_trigram + ' ' + word + words[tail-1] + words[tails[tail-1]-1]  # 2個後ろまで
-        return dep_trigram
+                dep_trigram = dep_trigram + ' ' + word + '__' + words[tail-1] + '__' + words[tails[tail-1]-1]  # 2個後ろまで
 
+        for head, word in zip(heads, words):
+            if tails.count(head) >= 2:  # 二つ以上がこのwordにかかっている場合
+                indexes = [i for i, x in enumerate(tails) if x == head]
+                for first_second in list(itertools.combinations(indexes, 2)):  # wordにかかっているやつから順序無視で二つとり出す。
+                    dep_trigram = dep_trigram + ' ' + words[first_second[0]-1] + '___' + words[first_second[1]-1] + '__' + word
+        return dep_trigram
 
     def _vectorize_doc2vec(self, input_eda, model_path):
         '''
